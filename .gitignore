@@ -1,0 +1,14 @@
+/bin/
+/lib/
+/include/
+/db/
+/dbd/
+*_BAK.adl
+envPaths*
+cdCommands
+dllPath.bat
+auto_settings.sav*
+configure/*.local
+O.*/
+*~
+*.swp
