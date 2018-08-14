@@ -1,0 +1,3 @@
+medm -x -macro "P=13VM1:, R=cam1:" ADVimba.adl &
+../../bin/linux-x86_65/vimbaApp st.cmd
+
