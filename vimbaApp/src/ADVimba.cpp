@@ -86,6 +86,24 @@ typedef enum {
     UniqueIdDriver
 } SPUniqueId_t;
 
+
+FrameObserver::FrameObserver(CameraPtr pCamera, epicsMessageQueue *pMsgQ) 
+    :   IFrameObserver(pCamera),
+        pMsgQ_(pMsgQ) 
+{
+}
+
+FrameObserver::~FrameObserver() 
+{
+}
+  
+void FrameObserver::FrameReceived(const FramePtr pFrame) {
+printf("FrameObserver::FrameReceived got frame, calling pMsgQ_->send()\n");
+    if (pMsgQ_->send((void *)&pFrame, sizeof(pFrame)) != 0) {
+        printf("FrameObserver::FrameReceived error calling pMsgQ_->send()\n");
+    }
+}
+
 /** Configuration function to configure one camera.
  *
  * This function need to be called once for each camera to be used by the IOC. A call to this
@@ -375,7 +393,9 @@ asynStatus ADVimba::grabImage()
 
     while(1) {
         unlock();
+printf("%s::%s waiting for frame\n", driverName, functionName);
         int recvSize = pCallbackMsgQ_->receive(&pFrame, sizeof(pFrame), 0.1);
+printf("%s::%s got frame\n", driverName, functionName);
         lock();
         if (recvSize == sizeof(pFrame)) {
             break;

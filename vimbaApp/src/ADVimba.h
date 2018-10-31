@@ -16,17 +16,9 @@ using namespace std;
 
 class FrameObserver : virtual public IFrameObserver {
 public:
-    FrameObserver(CameraPtr pCamera, epicsMessageQueue *pMsgQ) 
-  : IFrameObserver(pCamera),
-     pMsgQ_(pMsgQ) 
-    {}
-    ~FrameObserver() {}
-  
-    virtual void FrameReceived(const FramePtr pFrame) {  
-        if (pMsgQ_->send((void *)&pFrame, sizeof(pFrame)) != 0) {
-            printf("FrameObserver::FrameReceived error calling pMsgQ_->send()\n");
-        }
-    }
+    FrameObserver(CameraPtr pCamera, epicsMessageQueue *pMsgQ);
+    ~FrameObserver();
+    virtual void FrameReceived(const FramePtr pFrame);  
 private:
     epicsMessageQueue *pMsgQ_;
 };
