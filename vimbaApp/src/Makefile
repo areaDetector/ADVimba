@@ -3,18 +3,17 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 
-#LIBRARY_IOC_WIN32 += ADVimba
-#LIBRARY_IOC_Linux += ADVimba
+LIBRARY_IOC_WIN32 += ADVimba
+LIBRARY_IOC_Linux += ADVimba
 
-#LIB_SRCS += ListCameras.cpp
+#USR_CXXFLAGS_Linux += -fmax-errors=10
 
-#LIB_LIBS_Linux  += Spinnaker
+LIB_SRCS += VimbaFeature.cpp
+LIB_SRCS += ADVimba.cpp
+
+LIB_LIBS  += VimbaCPP VimbaC
 
 DBD += ADVimbaSupport.dbd
-
-PROD_IOC_Linux += ListCameras
-PROD_IOC_WIN32 += ListCameras
-ListCameras_SRCS += ListCamerasMain.cpp ListCameras.cpp
 
 PROD_LIBS_WIN32 += VimbaCPP VimbaC
 
