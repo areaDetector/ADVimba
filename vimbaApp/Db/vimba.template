@@ -1,0 +1,9 @@
+# Database for the records specific to the ADVimba driver
+# Macros:
+#% macro, P, Device Prefix
+#% macro, R, Device Suffix
+#% macro, PORT, Asyn Port name
+#% macro, TIMEOUT, Timeout, default 1
+#% macro, ADDR, Asyn Port address, default 0
+
+include "ADBase.template"
