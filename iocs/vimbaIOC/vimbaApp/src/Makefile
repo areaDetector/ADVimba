@@ -5,7 +5,7 @@ include $(TOP)/configure/CONFIG
 
 PROD_NAME = vimbaApp
 PROD_IOC_WIN32 += $(PROD_NAME)
-#PROD_IOC_Linux += $(PROD_NAME)
+PROD_IOC_Linux += $(PROD_NAME)
 
 # <name>.dbd will be created from <name>Include.dbd
 DBD += $(PROD_NAME).dbd
@@ -15,13 +15,15 @@ $(PROD_NAME)_DBD += ADVimbaSupport.dbd
 $(PROD_NAME)_SRCS += $(PROD_NAME)_registerRecordDeviceDriver.cpp $(PROD_NAME)Main.cpp
 
 # Add locally compiled object code
-PROD_LIBS += ADVimba 
+PROD_LIBS += ADVimba
+PROD_LIBS += ADGenICam 
 ifeq (debug, $(findstring debug, $(T_A)))
   PROD_LIBS_WIN32 += VimbaCPP
 else
   PROD_LIBS_WIN32 += VimbaCPP
 endif
 PROD_SYS_LIBS_Linux += VimbaCPP
+PROD_SYS_LIBS_Linux += VimbaC
 
 include $(ADCORE)/ADApp/commonDriverMakefile
 
