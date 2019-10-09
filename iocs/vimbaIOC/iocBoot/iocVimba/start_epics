@@ -1,3 +1,3 @@
 medm -x -macro "P=13VM1:, R=cam1:" ADVimba.adl &
-../../bin/linux-x86_65/vimbaApp st.cmd
+../../bin/linux-x86_64/vimbaApp st.cmd.manta_G507C
 
