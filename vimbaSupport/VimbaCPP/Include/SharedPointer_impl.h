@@ -31,7 +31,7 @@
 #define AVT_VMBAPI_SHAREDPOINTER_IMPL_H
 
 #include <VimbaCPP/Include/SharedPointer.h>
-
+#include <stdexcept>
 namespace AVT {
 namespace VmbAPI {
 
@@ -79,7 +79,10 @@ namespace VmbAPI {
     void ref_count<T>::dec()
     {
         m_Mutex.Lock();
-
+        if( m_nCount == 0 )
+        {
+            throw std::logic_error("shared pointer, used incorectly");
+        }
         if(m_nCount > 1)
         {
             m_nCount--;

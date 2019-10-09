@@ -43,7 +43,8 @@ class BasicLockable
 
     IMEXPORT virtual ~BasicLockable();
 
-    MutexPtr GetMutex() const;
+    MutexPtr& GetMutex();
+    const MutexPtr& GetMutex() const;
 
     void Lock()
     {

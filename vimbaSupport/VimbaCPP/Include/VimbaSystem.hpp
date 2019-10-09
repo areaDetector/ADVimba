@@ -81,6 +81,10 @@ inline VmbErrorType VimbaSystem::GetCameras( CameraPtrVector &rCameras )
                 res = GetCameras( &tmpCameras[0], nSize );
                 if( VmbErrorSuccess == res )
                 {
+                    if( nSize < tmpCameras.size() )
+                    {
+                        tmpCameras.resize( nSize);
+                    }
                     rCameras.swap( tmpCameras );
                 }
             }
