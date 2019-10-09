@@ -6,7 +6,7 @@ vimbaApp_registerRecordDeviceDriver(pdbbase)
 
 # Prefix for all records
 epicsEnvSet("PREFIX", "13VMB1:")
-epicsEnvSet("CAMERA_ID", "164.54.160.229")
+epicsEnvSet("CAMERA_ID", "164.54.160.21")
 epicsEnvSet("GENICAM_DB_FILE", "$(ADGENICAM)/db/AVT_Manta_G507C.template")
 
 # The port name for the detector
@@ -22,7 +22,7 @@ epicsEnvSet("NCHANS", "2048")
 # The maximum number of frames buffered in the NDPluginCircularBuff plugin
 epicsEnvSet("CBUFFS", "500")
 # The search path for database files
-epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db:$(ADVIMBA)/db")
+epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db;$(ADVIMBA)/db")
 # Define NELEMENTS to be enough for a 2048x2048x3 (color) image
 epicsEnvSet("NELEMENTS", "12592912")
 
