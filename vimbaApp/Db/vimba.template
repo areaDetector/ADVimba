@@ -6,4 +6,4 @@
 #% macro, TIMEOUT, Timeout, default 1
 #% macro, ADDR, Asyn Port address, default 0
 
-include "ADBase.template"
+include "ADGenICam.template"
