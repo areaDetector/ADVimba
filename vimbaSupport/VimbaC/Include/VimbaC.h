@@ -897,6 +897,7 @@ IMEXPORTC VmbError_t VMB_CALL VmbFeatureFloatRangeQuery ( const VmbHandle_t   ha
 //
 //  [in ]  const VmbHandle_t    handle         Handle for an entity that exposes features
 //  [in ]  const char*          name           Name of the feature
+//  [out]  VmbBool_t *          pHasIncrement  "true" if this float feature has an increment.
 //  [out]  double*              pValue         Value of the increment to get.
 //
 // Returns:
@@ -911,7 +912,7 @@ IMEXPORTC VmbError_t VMB_CALL VmbFeatureFloatRangeQuery ( const VmbHandle_t   ha
 //
 IMEXPORTC VmbError_t VMB_CALL VmbFeatureFloatIncrementQuery ( const VmbHandle_t   handle,
                                                               const char*         name,
-                                                              VmbBool_t*          hasIncrement,
+                                                              VmbBool_t*          pHasIncrement,
                                                               double*             pValue );
 //-----Enum --------
 
