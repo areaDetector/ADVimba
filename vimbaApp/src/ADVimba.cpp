@@ -395,7 +395,6 @@ asynStatus ADVimba::grabImage()
         unlock();
 printf("%s::%s waiting for frame\n", driverName, functionName);
         int recvSize = pCallbackMsgQ_->receive(&pFrame, sizeof(pFrame), 0.1);
-printf("%s::%s got frame\n", driverName, functionName);
         lock();
         if (recvSize == sizeof(pFrame)) {
             break;
@@ -415,6 +414,7 @@ printf("%s::%s got frame\n", driverName, functionName);
             return asynError;
         }
     }
+printf("%s::%s got frame\n", driverName, functionName);
     VmbFrameStatusType frameStatus = VmbFrameStatusIncomplete;
     VmbErrorType receiveStatus;
     receiveStatus = pFrame->GetReceiveStatus(frameStatus);
