@@ -236,7 +236,7 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     startEventId_ = epicsEventCreate(epicsEventEmpty);
 
     // launch image read task
-    epicsThreadCreate("PointGreyImageTask", 
+    epicsThreadCreate("VimbaImageTask", 
                       epicsThreadPriorityMedium,
                       epicsThreadGetStackSize(epicsThreadStackMedium),
                       imageGrabTaskC, this);
