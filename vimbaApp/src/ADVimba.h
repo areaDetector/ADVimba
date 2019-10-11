@@ -16,11 +16,11 @@ using namespace std;
 
 class FrameObserver : virtual public IFrameObserver {
 public:
-    FrameObserver(CameraPtr pCamera, epicsMessageQueue *pMsgQ);
+    FrameObserver(CameraPtr pCamera, class ADVimba *pVimba);
     ~FrameObserver();
-    virtual void FrameReceived(const FramePtr pFrame);  
-private:
-    epicsMessageQueue *pMsgQ_;
+    virtual void FrameReceived(const FramePtr pFrame);
+    CameraPtr pCamera_;
+    class ADVimba *pVimba_;  
 };
 
 /** Main driver class inherited from areaDetectors ADGenICam class.
@@ -46,6 +46,7 @@ public:
     void imageGrabTask();
     void shutdown();
     CameraPtr getCamera();
+    asynStatus processFrame(FramePtr pFrame);
 
 private:
     inline asynStatus checkError(VmbErrorType error, const char *functionName, const char *message);
@@ -61,7 +62,6 @@ private:
     int VMBColorProcessEnabled;
 
     /* Local methods to this class */
-    asynStatus grabImage();
     asynStatus startCapture();
     asynStatus stopCapture();
     asynStatus connectCamera();
@@ -75,7 +75,7 @@ private:
 
     int exiting_;
     epicsEventId startEventId_;
-    epicsMessageQueue *pCallbackMsgQ_;
+    epicsEventId newFrameEventId_;
     NDArray *pRaw_;
     int uniqueId_;
 };

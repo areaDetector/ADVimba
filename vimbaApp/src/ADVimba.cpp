@@ -19,7 +19,6 @@
 #include <epicsEvent.h>
 #include <epicsTime.h>
 #include <epicsThread.h>
-#include <epicsMessageQueue.h>
 #include <iocsh.h>
 #include <cantProceed.h>
 #include <epicsString.h>
@@ -87,9 +86,10 @@ typedef enum {
 } SPUniqueId_t;
 
 
-FrameObserver::FrameObserver(CameraPtr pCamera, epicsMessageQueue *pMsgQ) 
+FrameObserver::FrameObserver(CameraPtr pCamera, class ADVimba *pVimba) 
     :   IFrameObserver(pCamera),
-        pMsgQ_(pMsgQ) 
+        pCamera_(pCamera), 
+        pVimba_(pVimba)
 {
 }
 
@@ -98,10 +98,8 @@ FrameObserver::~FrameObserver()
 }
   
 void FrameObserver::FrameReceived(const FramePtr pFrame) {
-printf("FrameObserver::FrameReceived got frame, calling pMsgQ_->send()\n");
-    if (pMsgQ_->send((void *)&pFrame, sizeof(pFrame)) != 0) {
-        printf("FrameObserver::FrameReceived error calling pMsgQ_->send()\n");
-    }
+printf("FrameObserver::FrameReceived got frame, calling pVimba->processFrame()\n");
+    pVimba_->processFrame(pFrame);
 }
 
 /** Configuration function to configure one camera.
@@ -225,15 +223,10 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
 //    getSPProperty(ADMaxSizeY, &iValue);
 //    setIntegerParam(ADSizeY, iValue);
 
-    // Create the message queue to pass images from the callback class
-    pCallbackMsgQ_ = new epicsMessageQueue(CALLBACK_MESSAGE_QUEUE_SIZE, sizeof(FramePtr));
-    if (!pCallbackMsgQ_) {
-        cantProceed("ADVimba::ADVimba epicsMessageQueueCreate failure\n");
-    }
-
-    pFrameObserver_ = new FrameObserver(pCamera_, pCallbackMsgQ_);
+    pFrameObserver_ = new FrameObserver(pCamera_, this);
 
     startEventId_ = epicsEventCreate(epicsEventEmpty);
+    newFrameEventId_ = epicsEventCreate(epicsEventEmpty);
 
     // launch image read task
     epicsThreadCreate("VimbaImageTask", 
@@ -296,13 +289,12 @@ asynStatus ADVimba::connectCamera(void)
 
 void ADVimba::imageGrabTask()
 {
-    asynStatus status = asynSuccess;
+    int acquire;
     int imageCounter;
-    int numImages, numImagesCounter;
+    int numImages;
+    int numImagesCounter;
     int imageMode;
     int arrayCallbacks;
-    epicsTimeStamp startTime;
-    int acquire;
     static const char *functionName = "imageGrabTask";
 
     lock();
@@ -331,32 +323,24 @@ void ADVimba::imageGrabTask()
             setIntegerParam(ADAcquire, 1);
         }
 
-        // Get the current time 
-        epicsTimeGetCurrent(&startTime);
         // We are now waiting for an image
         setIntegerParam(ADStatus, ADStatusWaiting);
         // Call the callbacks to update any changes
         callParamCallbacks();
 
-        status = grabImage();
-        if (status == asynError) {
-            // remember to release the NDArray back to the pool now
-            // that we are not using it (we didn't get an image...)
-            if (pRaw_) pRaw_->release();
-            pRaw_ = NULL;
-            continue;
-        }
-
+        // Wait for event saying image has been collected
+        unlock();
+        epicsEventWait(newFrameEventId_);
+        lock();
         getIntegerParam(NDArrayCounter, &imageCounter);
         getIntegerParam(ADNumImages, &numImages);
         getIntegerParam(ADNumImagesCounter, &numImagesCounter);
         getIntegerParam(ADImageMode, &imageMode);
-        getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
         imageCounter++;
         numImagesCounter++;
         setIntegerParam(NDArrayCounter, imageCounter);
         setIntegerParam(ADNumImagesCounter, numImagesCounter);
-
+        getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
         if (arrayCallbacks) {
             // Call the NDArray callback
             doCallbacksGenericPointer(pRaw_, NDArrayData, 0);
@@ -369,13 +353,13 @@ void ADVimba::imageGrabTask()
         // See if acquisition is done if we are in single or multiple mode
         if ((imageMode == ADImageSingle) || ((imageMode == ADImageMultiple) && (numImagesCounter >= numImages))) {
             setIntegerParam(ADStatus, ADStatusIdle);
-            status = stopCapture();
+            stopCapture();
         }
         callParamCallbacks();
     }
 }
 
-asynStatus ADVimba::grabImage()
+asynStatus ADVimba::processFrame(FramePtr pFrame)
 {
     asynStatus status = asynSuccess;
     VmbUint32_t nRows, nCols;
@@ -388,33 +372,12 @@ asynStatus ADVimba::grabImage()
     int pixelSize;
     size_t dataSize;
     int nDims;
-    FramePtr pFrame;
-    static const char *functionName = "grabImage";
+    int uniqueIdMode;
+    int timeStampMode;
+    epicsTimeStamp startTime;
+    static const char *functionName = "processFrame";
 
-    while(1) {
-        unlock();
-printf("%s::%s waiting for frame\n", driverName, functionName);
-        int recvSize = pCallbackMsgQ_->receive(&pFrame, sizeof(pFrame), 0.1);
-        lock();
-        if (recvSize == sizeof(pFrame)) {
-            break;
-        } else if (recvSize == -1) {
-            // Timeout
-            int acquire;
-            getIntegerParam(ADAcquire, &acquire);
-            if (acquire == 0) {
-                return asynError;
-            } else {
-                continue;
-            }
-        } else {
-            asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-                    "%s::%s error receiving from message queue\n",
-                    driverName, functionName);
-            return asynError;
-        }
-    }
-printf("%s::%s got frame\n", driverName, functionName);
+    lock();
     VmbFrameStatusType frameStatus = VmbFrameStatusIncomplete;
     VmbErrorType receiveStatus;
     receiveStatus = pFrame->GetReceiveStatus(frameStatus);
@@ -422,55 +385,15 @@ printf("%s::%s got frame\n", driverName, functionName);
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
             "%s::%s error GetReceiveStatus returned %d frameStatus=%d\n",
             driverName, functionName, receiveStatus, frameStatus);
-        pCamera_->QueueFrame(pFrame);
-        return asynError;
+        goto done;
+        status = asynError;
     } 
     pFrame->GetWidth(nCols);
     pFrame->GetHeight(nRows);
 
-/*     
+    
     // Convert the pixel format if requested
-    getIntegerParam(SPConvertPixelFormat, &convertPixelFormat);
-    if (convertPixelFormat != SPPixelConvertNone) {
-        PixelFormatEnums convertedFormat;
-        switch (convertPixelFormat) {
-            case SPPixelConvertMono8:
-                convertedFormat = PixelFormat_Mono8;
-                break;
-            case SPPixelConvertMono16:
-                convertedFormat = PixelFormat_Mono16;
-                break;
-            case SPPixelConvertRaw16:
-                convertedFormat = PixelFormat_Raw16;
-                break;
-            case SPPixelConvertRGB8:
-                convertedFormat = PixelFormat_RGB8;
-                break;
-            case SPPixelConvertRGB16:
-                convertedFormat = PixelFormat_RGB16;
-                break;
-            default:
-                asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-                    "%s::%s Error: Unknown pixel conversion format %d\n",
-                    driverName, functionName, convertPixelFormat);
-                convertedFormat = PixelFormat_Mono8;
-                break;
-        }
-
-        pixelFormat = pImage->GetPixelFormat();
-printf("Converting image from format 0x%x to format 0x%x\n", pixelFormat, convertedFormat);
-        try {
-            ImagePtr pConvertedImage = pImage->Convert(convertedFormat);
-            pImage->Release();
-            pImage = pConvertedImage;
-        }
-        catch (Spinnaker::Exception &e) {
-             asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
-                 "%s::%s exception %s\n",
-             driverName, functionName, e.what());
-        }
-    }
-*/    
+    
     pFrame->GetPixelFormat(pixelFormat);
     switch (pixelFormat) {
         case VmbPixelFormatMono8:
@@ -551,7 +474,8 @@ printf("Converting image from format 0x%x to format 0x%x\n", pixelFormat, conver
             "%s::%s [%s] ERROR: Serious problem: not enough buffers left! Aborting acquisition!\n",
             driverName, functionName, portName);
         setIntegerParam(ADAcquire, 0);
-        return(asynError);
+        status = asynError;
+        goto done;
     }
     VmbUchar_t *pData;
     pFrame->GetImage(pData);
@@ -561,12 +485,13 @@ printf("Converting image from format 0x%x to format 0x%x\n", pixelFormat, conver
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
             "%s::%s [%s] ERROR: pData is NULL!\n",
             driverName, functionName, portName);
-        return asynError;
+        status = asynError;
+        goto done;
     }
 
     // Put the frame number into the buffer
 //    getIntegerParam(SPUniqueIdMode, &uniqueIdMode);
-    int uniqueIdMode = UniqueIdCamera;
+    uniqueIdMode = UniqueIdCamera;
     if (uniqueIdMode == UniqueIdCamera) {
         VmbUint64_t uniqueId;
         pFrame->GetFrameID(uniqueId);
@@ -578,7 +503,7 @@ printf("Converting image from format 0x%x to format 0x%x\n", pixelFormat, conver
     updateTimeStamp(&pRaw_->epicsTS);
 //    getIntegerParam(SPTimeStampMode, &timeStampMode);
     // Set the timestamps in the buffer
-    int timeStampMode = TimeStampCamera;
+    timeStampMode = TimeStampCamera;
     if (timeStampMode == TimeStampCamera) {
         VmbUint64_t timeStamp;
         pFrame->GetTimestamp(timeStamp);
@@ -586,7 +511,6 @@ printf("Converting image from format 0x%x to format 0x%x\n", pixelFormat, conver
     } else {
         pRaw_->timeStamp = pRaw_->epicsTS.secPastEpoch + pRaw_->epicsTS.nsec/1e9;
     }
-    pCamera_->QueueFrame(pFrame);
 
     // Get any attributes that have been defined for this driver        
     getAttributes(pRaw_->pAttributeList);
@@ -596,8 +520,12 @@ printf("Converting image from format 0x%x to format 0x%x\n", pixelFormat, conver
     callParamCallbacks();
 
     pRaw_->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
-    return status;
+    epicsEventSignal(newFrameEventId_);
 
+    done:
+    pCamera_->QueueFrame(pFrame);
+    unlock();
+    return status;
 }
 
 asynStatus ADVimba::readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], 
@@ -643,10 +571,8 @@ asynStatus ADVimba::stopCapture()
         epicsThreadSleep(.1);
         lock();
     }
-    //pCamera_->StopContinuousImageAcquisition();
+    pCamera_->StopContinuousImageAcquisition();
     FramePtr pFrame;
-    // Need to empty the message queue it could have some images in it
-    while(pCallbackMsgQ_->tryReceive(&pFrame, sizeof(pFrame)) != -1) {}
     return asynSuccess;
 }
 
