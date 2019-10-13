@@ -1,1 +1,4 @@
 file "ADGenICam_settings.req", P=$(P), R=$(R)
+$(P)$(R)TimeStampMode
+$(P)$(R)UniqueIdMode
+$(P)$(R)ConvertPixelFormat
