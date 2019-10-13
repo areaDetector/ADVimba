@@ -73,7 +73,8 @@ private:
     VimbaSystem & system_;
     FrameObserver *pFrameObserver_;
 
-    int exiting_;
+    bool exiting_;
+    bool acquiring_;
     epicsEventId startEventId_;
     epicsEventId newFrameEventId_;
     NDArray *pRaw_;
