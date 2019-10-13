@@ -98,7 +98,6 @@ FrameObserver::~FrameObserver()
 }
   
 void FrameObserver::FrameReceived(const FramePtr pFrame) {
-printf("FrameObserver::FrameReceived got frame, calling pVimba->processFrame()\n");
     pVimba_->processFrame(pFrame);
 }
 
@@ -162,7 +161,12 @@ static void imageGrabTaskC(void *drvPvt)
 ADVimba::ADVimba(const char *portName, const char *cameraId,
                          size_t maxMemory, int priority, int stackSize )
     : ADGenICam(portName, maxMemory, priority, stackSize),
-    cameraId_(cameraId), system_(VimbaSystem::GetInstance()), exiting_(0), pRaw_(NULL), uniqueId_(0)
+    cameraId_(cameraId),
+    system_(VimbaSystem::GetInstance()), 
+    exiting_(false),
+    acquiring_(false),
+    pRaw_(NULL), 
+    uniqueId_(0)
 {
     static const char *functionName = "ADVimba";
     asynStatus status;
@@ -179,16 +183,6 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
                   version.major, version.minor, version.patch);
     setStringParam(ADSDKVersion,tempString);
  
-
-/*
-    createParam(PGPacketSizeString,             asynParamInt32,   &PGPacketSize);
-    createParam(PGPacketSizeActualString,       asynParamInt32,   &PGPacketSizeActual);
-    createParam(PGMaxPacketSizeString,          asynParamInt32,   &PGMaxPacketSize);
-    createParam(PGPacketDelayString,            asynParamInt32,   &PGPacketDelay);
-    createParam(PGPacketDelayActualString,      asynParamInt32,   &PGPacketDelayActual);
-    createParam(PGBandwidthString,              asynParamFloat64, &PGBandwidth);
-*/
-
     status = connectCamera();
     if (status) {
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
@@ -199,13 +193,9 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
         return;
     }
 
-    //createParam("SP_CONVERT_PIXEL_FORMAT",     asynParamInt32,   &SPConvertPixelFormat);
-
-    //createParam("SP_BUFFER_UNDERRUN_COUNT",    asynParamInt32,   &SPBufferUnderrunCount);
-    //createParam("SP_FAILED_BUFFER_COUNT",      asynParamInt32,   &SPFailedBufferCount);
-    //createParam("SP_FAILED_PACKET_COUNT",      asynParamInt32,   &SPFailedPacketCount);
-    //createParam("SP_TIME_STAMP_MODE",          asynParamInt32,   &SPTimeStampMode);
-    //createParam("SP_UNIQUE_ID_MODE",           asynParamInt32,   &SPUniqueIdMode);
+    createParam("VMB_CONVERT_PIXEL_FORMAT",     asynParamInt32,   &VMBConvertPixelFormat);
+    createParam("VMB_TIME_STAMP_MODE",          asynParamInt32,   &VMBTimeStampMode);
+    createParam("VMB_UNIQUE_ID_MODE",           asynParamInt32,   &VMBUniqueIdMode);
 
     /* Set initial values of some parameters */
     setIntegerParam(NDDataType, NDUInt8);
@@ -218,11 +208,6 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
 //    setIntegerParam(SPTriggerSource, 0);
 //    setSPProperty(SPColorProcessEnabled, 0);
     
-//    getSPProperty(ADMaxSizeX, &iValue);
-//    setIntegerParam(ADSizeX, iValue);
-//    getSPProperty(ADMaxSizeY, &iValue);
-//    setIntegerParam(ADSizeY, iValue);
-
     pFrameObserver_ = new FrameObserver(pCamera_, this);
 
     startEventId_ = epicsEventCreate(epicsEventEmpty);
@@ -257,7 +242,7 @@ void ADVimba::shutdown(void)
     //static const char *functionName = "shutdown";
     
     lock();
-    exiting_ = 1;
+    exiting_ = true;
     delete pFrameObserver_;
     pCamera_->Close();
     system_.Shutdown();
@@ -374,7 +359,6 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     int nDims;
     int uniqueIdMode;
     int timeStampMode;
-    epicsTimeStamp startTime;
     static const char *functionName = "processFrame";
 
     lock();
@@ -391,7 +375,6 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     pFrame->GetWidth(nCols);
     pFrame->GetHeight(nRows);
 
-    
     // Convert the pixel format if requested
     
     pFrame->GetPixelFormat(pixelFormat);
@@ -428,7 +411,8 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
             asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
                 "%s:%s: unsupported pixel format=0x%x\n",
                 driverName, functionName, pixelFormat);
-            return asynError;
+            status = asynError;
+            goto done;
     }
 
     if (numColors == 1) {
@@ -490,8 +474,7 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     }
 
     // Put the frame number into the buffer
-//    getIntegerParam(SPUniqueIdMode, &uniqueIdMode);
-    uniqueIdMode = UniqueIdCamera;
+    getIntegerParam(VMBUniqueIdMode, &uniqueIdMode);
     if (uniqueIdMode == UniqueIdCamera) {
         VmbUint64_t uniqueId;
         pFrame->GetFrameID(uniqueId);
@@ -501,9 +484,8 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     }
     uniqueId_++;
     updateTimeStamp(&pRaw_->epicsTS);
-//    getIntegerParam(SPTimeStampMode, &timeStampMode);
+    getIntegerParam(VMBTimeStampMode, &timeStampMode);
     // Set the timestamps in the buffer
-    timeStampMode = TimeStampCamera;
     if (timeStampMode == TimeStampCamera) {
         VmbUint64_t timeStamp;
         pFrame->GetTimestamp(timeStamp);
@@ -514,12 +496,10 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
 
     // Get any attributes that have been defined for this driver        
     getAttributes(pRaw_->pAttributeList);
+    pRaw_->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
     
-    // Change the status to be readout...
-    setIntegerParam(ADStatus, ADStatusReadout);
     callParamCallbacks();
 
-    pRaw_->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
     epicsEventSignal(newFrameEventId_);
 
     done:
@@ -545,12 +525,18 @@ asynStatus ADVimba::readEnum(asynUser *pasynUser, char *strings[], int values[],
 asynStatus ADVimba::startCapture()
 {
     //static const char *functionName = "startCapture";
-    
+
+    // If we are already acquiring return immediately
+    if (acquiring_) return asynSuccess;
+
     // Start the camera transmission...
     setIntegerParam(ADNumImagesCounter, 0);
     setShutter(1);
-printf("Calling StartContinuousImageAcquisition\n");
+    // How to we avoid having to create a new FrameObserver each time we start acquisition?
+    // The smart pointer seems to be deleted by StartContinuousImageAcquisition?             
+    pFrameObserver_ = new FrameObserver(pCamera_, this);
     pCamera_->StartContinuousImageAcquisition(NUM_VIMBA_BUFFERS, IFrameObserverPtr(pFrameObserver_));
+    acquiring_ = true;
     epicsEventSignal(startEventId_);
     return asynSuccess;
 }
@@ -572,32 +558,34 @@ asynStatus ADVimba::stopCapture()
         lock();
     }
     pCamera_->StopContinuousImageAcquisition();
-    FramePtr pFrame;
+    acquiring_ = false;
     return asynSuccess;
 }
 
 
 asynStatus ADVimba::readStatus()
 {
-/*
-    static const char *functionName = "readStatus";
+    std::vector<string> paramNames;
+    GenICamFeature *pFeature;
+    unsigned i;
+    //static const char *functionName = "readStatus";
+    
+    paramNames.push_back("StatFrameDelivered");
+    paramNames.push_back("StatFrameDropped");
+    paramNames.push_back("StatFrameUnderrun");
+    paramNames.push_back("StatPacketErrors");
+    paramNames.push_back("StatPacketMissed");
+    paramNames.push_back("StatPacketReceived");
+    paramNames.push_back("StatPacketRequested");
+    paramNames.push_back("StatPacketResent");
 
-    const TransportLayerStream& camInfo = pCamera_->TLStream;
-	  cout << "Stream ID: " << camInfo.StreamID.ToString() << endl;
-	  cout << "Stream Type: " << camInfo.StreamType.ToString() << endl;
-    cout << "Stream Buffer Count: " << camInfo.StreamDefaultBufferCount.ToString() << endl;
-    cout << "Stream Buffer Handling Mode: " << camInfo.StreamBufferHandlingMode.ToString() << endl;
-    cout << "Stream Packets Received: " << camInfo.GevTotalPacketCount.ToString() << endl;
-    getSPProperty(ADTemperatureActual);
-    setIntegerParam(SPBufferUnderrunCount, (int)camInfo.StreamBufferUnderrunCount.GetValue());
-    setIntegerParam(SPFailedBufferCount,   (int)camInfo.StreamFailedBufferCount.GetValue());
-    if (camInfo.StreamType.GetIntValue() == StreamType_GEV) {
-        setIntegerParam(SPFailedPacketCount,   (int)camInfo.GevFailedPacketCount.GetValue());
+    for(i=0; i<paramNames.size(); i++) {
+        pFeature = mGCFeatureSet.getByName(paramNames[i]);
+        if (pFeature) pFeature->read(0, true);
     }
-*/
-    callParamCallbacks();
-    return asynSuccess;
 
+    if (acquiring_) return asynSuccess;
+    return ADGenICam::readStatus();
 }
 
 void ADVimba::report(FILE *fp, int details)
