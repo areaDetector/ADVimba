@@ -23,6 +23,7 @@ else
   PROD_LIBS_WIN32 += VimbaCPP
 endif
 PROD_SYS_LIBS_Linux += VimbaCPP
+PROD_SYS_LIBS_Linux += VimbaImageTransform
 PROD_SYS_LIBS_Linux += VimbaC
 
 include $(ADCORE)/ADApp/commonDriverMakefile
