@@ -308,15 +308,17 @@ void ADVimba::imageGrabTask()
 
         // Wait for event saying image has been collected
         unlock();
-        epicsEventWait(newFrameEventId_);
+        epicsEventStatus waitStatus = epicsEventWaitWithTimeout(newFrameEventId_, 0.1);
         lock();
-        getIntegerParam(ADNumImages, &numImages);
-        getIntegerParam(ADNumImagesCounter, &numImagesCounter);
-        getIntegerParam(ADImageMode, &imageMode);
-        // See if acquisition is done if we are in single or multiple mode
-        if ((imageMode == ADImageSingle) || ((imageMode == ADImageMultiple) && (numImagesCounter >= numImages))) {
-            setIntegerParam(ADStatus, ADStatusIdle);
-            stopCapture();
+        if (waitStatus == epicsEventOK) {
+            getIntegerParam(ADNumImages, &numImages);
+            getIntegerParam(ADNumImagesCounter, &numImagesCounter);
+            getIntegerParam(ADImageMode, &imageMode);
+            // See if acquisition is done if we are in single or multiple mode
+            if ((imageMode == ADImageSingle) || ((imageMode == ADImageMultiple) && (numImagesCounter >= numImages))) {
+                setIntegerParam(ADStatus, ADStatusIdle);
+                stopCapture();
+            }
         }
         callParamCallbacks();
     }
