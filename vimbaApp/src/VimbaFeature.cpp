@@ -84,90 +84,106 @@ bool VimbaFeature::isImplemented() {
 }
 
 bool VimbaFeature::isAvailable() {
-    bool value; 
+    bool value;
+    if (!mIsImplemented) return false;
     checkError(mFeaturePtr->IsReadable(value), "isAvailable", "IsReadable");
     return value;
 }
 
 bool VimbaFeature::isReadable() { 
     bool value; 
+    if (!mIsImplemented) return false;
     checkError(mFeaturePtr->IsReadable(value), "isReadable", "IsReadable");
     return value;
 }
 
 bool VimbaFeature::isWritable() { 
     bool value; 
+    if (!mIsImplemented) return false;
     checkError(mFeaturePtr->IsWritable(value), "isWritable", "IsWritable");
     return value;
 }
 
 int VimbaFeature::readInteger() {
     VmbInt64_t value; 
+    if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetValue(value), "readInteger", "GetValue");
     return value;
 }
 
 int VimbaFeature::readIntegerMin() {
     VmbInt64_t min, max; 
+    if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetRange(min, max), "readIntegerMin", "GetRange");
     return min;
 }
 
 int VimbaFeature::readIntegerMax() {
     VmbInt64_t min, max; 
+    if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetRange(min, max), "readIntegerMax", "GetRange");
     return max;
 }
 
 int VimbaFeature::readIncrement() { 
     VmbInt64_t inc; 
+    if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetIncrement(inc), "readIncrement", "GetIncrement");
     return inc;
 }
 
 void VimbaFeature::writeInteger(int value) { 
+    if (!mIsImplemented) return;
     checkError(mFeaturePtr->SetValue(value), "writeInteger", "SetValue");
 }
 
 bool VimbaFeature::readBoolean() {
     bool value;
+    if (!mIsImplemented) return false;
     checkError(mFeaturePtr->GetValue(value), "readBoolean", "GetValue");
     return value;
 }
 
 void VimbaFeature::writeBoolean(bool value) { 
+    if (!mIsImplemented) return;
     checkError(mFeaturePtr->SetValue(value), "writeBoolean", "SetValue");
 }
 
 double VimbaFeature::readDouble() { 
     double value;
+    if (!mIsImplemented) return 0.0;
     checkError(mFeaturePtr->GetValue(value), "readDouble", "GetValue");
     return value;
 }
 
 void VimbaFeature::writeDouble(double value) { 
+    if (!mIsImplemented) return;
     checkError(mFeaturePtr->SetValue(value), "writeDouble", "SetValue");
 }
 
 double VimbaFeature::readDoubleMin() {
     double min, max; 
+    if (!mIsImplemented) return 0.0;
     checkError(mFeaturePtr->GetRange(min, max), "readDoubleMin", "GetRange");
     return min;
 }
 
 double VimbaFeature::readDoubleMax() {
     double min, max; 
+    if (!mIsImplemented) return 0.0;
     checkError(mFeaturePtr->GetRange(min, max), "readDoubleMax", "GetRange");
     return max;
 }
 
 int VimbaFeature::readEnumIndex() {
     VmbInt64_t value;
+    if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetValue(value), "readEnumIndex", "GetValue"); 
     return value;
 }
 
 void VimbaFeature::writeEnumIndex(int value) {
+    if (!mIsImplemented) return;
     checkError(mFeaturePtr->SetValue(value), "writeEnumIndex", "SetValue"); 
 }
 
@@ -180,15 +196,18 @@ void VimbaFeature::writeEnumString(std::string const &value) {
 
 std::string VimbaFeature::readString() {
     std::string value; 
+    if (!mIsImplemented) return "";
     checkError(mFeaturePtr->GetValue(value), "readString", "GetValue");
     return value; 
 }
 
 void VimbaFeature::writeString(std::string const & value) { 
+    if (!mIsImplemented) return;
     checkError(mFeaturePtr->SetValue(value.c_str()), "writeString", "SetValue"); 
 }
 
 void VimbaFeature::writeCommand() { 
+    if (!mIsImplemented) return;
     if (checkError(mFeaturePtr->RunCommand(), "writeCommand", "RunCommand")) {
         bool bIsCommandDone = false;
         do {
@@ -201,6 +220,7 @@ void VimbaFeature::writeCommand() {
 
 void VimbaFeature::readEnumChoices(std::vector<std::string>& enumStrings, std::vector<int>& enumValues) {
     EnumEntryVector entries;
+    if (!mIsImplemented) return;
     checkError(mFeaturePtr->GetEntries(entries), "readEnumChoices", "GetEntries");
     int numEnums = (int)entries.size();
     bool available;
