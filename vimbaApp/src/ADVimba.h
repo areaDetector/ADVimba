@@ -17,10 +17,10 @@ using namespace std;
 #define VMBTimeStampModeString       "VMB_TIME_STAMP_MODE"        // asynParamInt32, R/O
 #define VMBUniqueIdModeString        "VMB_UNIQUE_ID_MODE"         // asynParamInt32, R/O
 
-class FrameObserver : virtual public IFrameObserver {
+class ADVimbaFrameObserver : virtual public IFrameObserver {
 public:
-    FrameObserver(CameraPtr pCamera, class ADVimba *pVimba);
-    ~FrameObserver();
+    ADVimbaFrameObserver(CameraPtr pCamera, class ADVimba *pVimba);
+    ~ADVimbaFrameObserver();
     virtual void FrameReceived(const FramePtr pFrame);
     CameraPtr pCamera_;
     class ADVimba *pVimba_;  
@@ -68,14 +68,15 @@ private:
     const char *cameraId_;
     CameraPtr pCamera_;
     VimbaSystem & system_;
-    FrameObserver *pFrameObserver_;
 
     bool exiting_;
     bool acquiring_;
     epicsEventId startEventId_;
     epicsEventId newFrameEventId_;
-    NDArray *pRaw_;
     int uniqueId_;
+    
+    std::vector<string> statusFeatureNames_;
+
 };
 
 #endif
