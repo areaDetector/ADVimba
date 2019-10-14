@@ -6,6 +6,7 @@ include $(TOP)/configure/CONFIG
 
 INC += $(patsubst ../%, %, $(wildcard ../VimbaCPP/Include/*))
 INC += $(patsubst ../%, %, $(wildcard ../VimbaC/Include/*))
+INC += $(patsubst ../%, %, $(wildcard ../VimbaImageTransform/Include/*))
 INC += $(patsubst ../%, %, $(wildcard ../Common/*))
 
 # Note, the following files were manually copied from the Spinnaker distribution lib directories on Windows
