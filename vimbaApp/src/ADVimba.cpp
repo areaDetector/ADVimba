@@ -77,18 +77,18 @@ typedef enum {
 } VMBUniqueId_t;
 
 
-FrameObserver::FrameObserver(CameraPtr pCamera, class ADVimba *pVimba) 
+ADVimbaFrameObserver::ADVimbaFrameObserver(CameraPtr pCamera, class ADVimba *pVimba) 
     :   IFrameObserver(pCamera),
         pCamera_(pCamera), 
         pVimba_(pVimba)
 {
 }
 
-FrameObserver::~FrameObserver() 
+ADVimbaFrameObserver::~ADVimbaFrameObserver() 
 {
 }
   
-void FrameObserver::FrameReceived(const FramePtr pFrame) {
+void ADVimbaFrameObserver::FrameReceived(const FramePtr pFrame) {
     pVimba_->processFrame(pFrame);
 }
 
@@ -195,11 +195,19 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     setIntegerParam(ADMinY, 0);
     setStringParam(ADStringToServer, "<not used by driver>");
     setStringParam(ADStringFromServer, "<not used by driver>");
-    
-    pFrameObserver_ = new FrameObserver(pCamera_, this);
 
     startEventId_ = epicsEventCreate(epicsEventEmpty);
     newFrameEventId_ = epicsEventCreate(epicsEventEmpty);
+
+    statusFeatureNames_.push_back("StatFrameDelivered");
+    statusFeatureNames_.push_back("StatFrameDropped");
+    statusFeatureNames_.push_back("StatFrameUnderrun");
+    statusFeatureNames_.push_back("StatPacketErrors");
+    statusFeatureNames_.push_back("StatPacketMissed");
+    statusFeatureNames_.push_back("StatPacketReceived");
+    statusFeatureNames_.push_back("StatPacketRequested");
+    statusFeatureNames_.push_back("StatPacketResent");
+    statusFeatureNames_.push_back("DeviceTemperature");
 
     // launch image read task
     epicsThreadCreate("VimbaImageTask", 
@@ -583,9 +591,7 @@ asynStatus ADVimba::startCapture()
     // Start the camera transmission...
     setIntegerParam(ADNumImagesCounter, 0);
     setShutter(1);
-    // Need to make a copy of the frameObserver pointer, because the one passed gets deleted
-    FrameObserver *frameObserver = pFrameObserver_;          
-    pCamera_->StartContinuousImageAcquisition(NUM_VIMBA_BUFFERS, IFrameObserverPtr(frameObserver));
+    pCamera_->StartContinuousImageAcquisition(NUM_VIMBA_BUFFERS, IFrameObserverPtr(new ADVimbaFrameObserver(pCamera_, this)));
     acquiring_ = true;
     epicsEventSignal(startEventId_);
     return asynSuccess;
@@ -607,7 +613,12 @@ asynStatus ADVimba::stopCapture()
         epicsThreadSleep(.1);
         lock();
     }
+    // There seems to be a deadlock with a mutex in the Vimba library if StopContinuousImageAcquisition is
+    // called when the FrameObserver callback is running, because it takes the locks in the opposite order.
+    // Release the driver lock here.
+    unlock(); 
     pCamera_->StopContinuousImageAcquisition();
+    lock();
     acquiring_ = false;
     return asynSuccess;
 }
@@ -615,27 +626,21 @@ asynStatus ADVimba::stopCapture()
 
 asynStatus ADVimba::readStatus()
 {
-    std::vector<string> paramNames;
     GenICamFeature *pFeature;
     unsigned i;
     //static const char *functionName = "readStatus";
-    
-    paramNames.push_back("StatFrameDelivered");
-    paramNames.push_back("StatFrameDropped");
-    paramNames.push_back("StatFrameUnderrun");
-    paramNames.push_back("StatPacketErrors");
-    paramNames.push_back("StatPacketMissed");
-    paramNames.push_back("StatPacketReceived");
-    paramNames.push_back("StatPacketRequested");
-    paramNames.push_back("StatPacketResent");
-    paramNames.push_back("DeviceTemperature");
 
-    for(i=0; i<paramNames.size(); i++) {
-        pFeature = mGCFeatureSet.getByName(paramNames[i]);
-        if (pFeature) pFeature->read(0, true);
+    // If acquiring then just read a small set of status features, else read all features
+    if (acquiring_) {
+        for (i=0; i<statusFeatureNames_.size(); i++) {
+            pFeature = mGCFeatureSet.getByName(statusFeatureNames_[i]);
+            if (pFeature) pFeature->read(0, true);
+        }
     }
-    if (acquiring_) return asynSuccess;
-    return ADGenICam::readStatus();
+    else {
+        ADGenICam::readStatus();
+    }
+    return asynSuccess;
 }
 
 void ADVimba::report(FILE *fp, int details)
