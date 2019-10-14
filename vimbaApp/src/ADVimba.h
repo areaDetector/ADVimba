@@ -13,6 +13,9 @@ using namespace AVT;
 using namespace AVT::VmbAPI;
 using namespace std;
 
+#define VMBConvertPixelFormatString  "VMB_CONVERT_PIXEL_FORMAT"   // asynParamInt32, R/W
+#define VMBTimeStampModeString       "VMB_TIME_STAMP_MODE"        // asynParamInt32, R/O
+#define VMBUniqueIdModeString        "VMB_UNIQUE_ID_MODE"         // asynParamInt32, R/O
 
 class FrameObserver : virtual public IFrameObserver {
 public:
@@ -50,16 +53,10 @@ public:
 
 private:
     inline asynStatus checkError(VmbErrorType error, const char *functionName, const char *message);
-    int VMBVideoMode;
-#define FIRST_VMB_PARAM VMBVideoMode
     int VMBConvertPixelFormat;
-    int VMBTransmitFailureCount;
-    int VMBBufferUnderrunCount;
-    int VMBFailedBufferCount;
-    int VMBFailedPacketCount;
+#define FIRST_VMB_PARAM VMBConvertPixelFormat;
     int VMBTimeStampMode;
     int VMBUniqueIdMode;
-    int VMBColorProcessEnabled;
 
     /* Local methods to this class */
     asynStatus startCapture();
