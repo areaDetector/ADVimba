@@ -25,6 +25,7 @@
 #include <epicsExit.h>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
+#include "VimbaImageTransform/Include/VmbTransform.h"
 
 using namespace AVT;
 using namespace AVT::VmbAPI;
@@ -42,28 +43,18 @@ using namespace std;
 
 static const char *driverName = "ADVimba";
 
-/*
-#define PGPacketSizeString            "PG_PACKET_SIZE"
-#define PGPacketSizeActualString      "PG_PACKET_SIZE_ACTUAL"
-#define PGMaxPacketSizeString         "PG_MAX_PACKET_SIZE"
-#define PGPacketDelayString           "PG_PACKET_DELAY"
-#define PGPacketDelayActualString     "PG_PACKET_DELAY_ACTUAL"
-#define PGBandwidthString             "PG_BANDWIDTH"
-*/
-
 // Size of message queue for callback function
 #define CALLBACK_MESSAGE_QUEUE_SIZE 10
 
 #define NUM_VIMBA_BUFFERS 10
 
 typedef enum {
-    SPPixelConvertNone,
-    SPPixelConvertMono8,
-    SPPixelConvertMono16,
-    SPPixelConvertRaw16,
-    SPPixelConvertRGB8,
-    SPPixelConvertRGB16
-} SPPixelConvert_t;
+    VMBPixelConvertNone,
+    VMBPixelConvertMono8,
+    VMBPixelConvertMono16,
+    VMBPixelConvertRGB8,
+    VMBPixelConvertRGB16
+} VMBPixelConvert_t;
 
 
 /*
@@ -78,12 +69,12 @@ static const char *gigEPropertyTypeStrings[NUM_GIGE_PROPERTIES] = {
 typedef enum {
     TimeStampCamera,
     TimeStampEPICS
-} SPTimeStamp_t;
+} VMBTimeStamp_t;
 
 typedef enum {
     UniqueIdCamera,
     UniqueIdDriver
-} SPUniqueId_t;
+} VMBUniqueId_t;
 
 
 FrameObserver::FrameObserver(CameraPtr pCamera, class ADVimba *pVimba) 
@@ -205,8 +196,6 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     setIntegerParam(ADMinY, 0);
     setStringParam(ADStringToServer, "<not used by driver>");
     setStringParam(ADStringFromServer, "<not used by driver>");
-//    setIntegerParam(SPTriggerSource, 0);
-//    setSPProperty(SPColorProcessEnabled, 0);
     
     pFrameObserver_ = new FrameObserver(pCamera_, this);
 
@@ -347,39 +336,109 @@ void ADVimba::imageGrabTask()
 asynStatus ADVimba::processFrame(FramePtr pFrame)
 {
     asynStatus status = asynSuccess;
+    VmbError_t vmbStatus;
     VmbUint32_t nRows, nCols;
     NDDataType_t dataType;
     NDColorMode_t colorMode;
     VmbPixelFormatType pixelFormat;
-    //int convertPixelFormat;
-    int numColors;
+    int convertPixelFormat;
+    int numColors = 1;
     size_t dims[3];
     int pixelSize;
     size_t dataSize;
     int nDims;
     int uniqueIdMode;
     int timeStampMode;
+    VmbUchar_t *pConvertBuffer = NULL;
+    VmbUchar_t *pData = NULL;
     static const char *functionName = "processFrame";
 
     lock();
     VmbFrameStatusType frameStatus = VmbFrameStatusIncomplete;
-    VmbErrorType receiveStatus;
-    receiveStatus = pFrame->GetReceiveStatus(frameStatus);
-    if (VmbErrorSuccess != receiveStatus || VmbFrameStatusComplete != frameStatus) {
+    vmbStatus = pFrame->GetReceiveStatus(frameStatus);
+    if (VmbErrorSuccess != vmbStatus || VmbFrameStatusComplete != frameStatus) {
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
             "%s::%s error GetReceiveStatus returned %d frameStatus=%d\n",
-            driverName, functionName, receiveStatus, frameStatus);
-        goto done;
+            driverName, functionName, vmbStatus, frameStatus);
         status = asynError;
+        goto done;
     } 
     pFrame->GetWidth(nCols);
     pFrame->GetHeight(nRows);
+    pFrame->GetPixelFormat(pixelFormat);
+    pFrame->GetImage(pData);
 
     // Convert the pixel format if requested
+    getIntegerParam(VMBConvertPixelFormat, &convertPixelFormat);
+    if (convertPixelFormat != VMBPixelConvertNone) {
+        VmbPixelFormatType outputPixelFormat;
+//        VmbPixelLayout pixelLayout = VmbPixelLayoutMono;
+        int bitsPerPixel = 8;
+        switch (convertPixelFormat) {
+            case VMBPixelConvertMono8:
+//                pixelLayout = VmbPixelLayoutMono;
+                outputPixelFormat = VmbPixelFormatMono8;
+                bitsPerPixel = 8;
+                numColors = 1;
+                break;
+            case VMBPixelConvertMono16:
+//                pixelLayout = VmbPixelLayoutMono;
+                outputPixelFormat = VmbPixelFormatMono16;
+                bitsPerPixel = 16;
+                numColors = 1;
+                break;
+            case VMBPixelConvertRGB8:
+//                pixelLayout = VmbPixelLayoutRGB;
+                outputPixelFormat = VmbPixelFormatRgb8;
+                bitsPerPixel = 8;
+                numColors = 3;
+                break;
+            case VMBPixelConvertRGB16:
+//                pixelLayout = VmbPixelLayoutRGB;
+                outputPixelFormat = VmbPixelFormatRgb16;
+                bitsPerPixel = 16;
+                numColors = 3;
+                break;
+            default:
+                asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+                    "%s::%s Error: Unknown pixel conversion format %d\n",
+                    driverName, functionName, convertPixelFormat);
+                outputPixelFormat = VmbPixelFormatMono8;
+                break;
+        }
+        VmbImage inputImage;
+        VmbImage outputImage;
+        VmbTransformInfo transformInfo;
+        // Set size member for verification inside API
+        inputImage.Size = sizeof(inputImage);
+        outputImage.Size = sizeof(outputImage);
+        // Attach the data buffers
+        inputImage.Data = pData;
+        pConvertBuffer = (VmbUchar_t *)malloc(nCols * nRows * numColors * bitsPerPixel/8);
+        outputImage.Data = pConvertBuffer;
+        // Fill image info from input pixel format
+        vmbStatus = VmbSetImageInfoFromPixelFormat(pixelFormat, nCols, nRows, &inputImage);
+        // Fill destination image info from output pixel format
+        vmbStatus = VmbSetImageInfoFromPixelFormat(outputPixelFormat, nCols, nRows, &outputImage);
+//        vmbStatus = VmbSetImageInfoFromInputImage(&inputImage, pixelLayout, bitsPerPixel, &outputImage);
+        // Set the debayering algorithm to simple 2 by 2
+        vmbStatus = VmbSetDebayerMode(VmbDebayerMode2x2, &transformInfo);
+        // perform the transformation
+        vmbStatus = VmbImageTransform(&inputImage, &outputImage, &transformInfo, 1);
+        if (vmbStatus == VmbErrorSuccess) {
+            pixelFormat = outputPixelFormat;
+            pData = pConvertBuffer;
+        } 
+        else {
+            asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
+                "%s::%s error calling VmbImageTransform, input pixel format=0x%x, output pixel format=0x%x status return=%d\n", 
+                driverName, functionName, pixelFormat, outputPixelFormat, vmbStatus);
+        }
+    }
     
-    pFrame->GetPixelFormat(pixelFormat);
     switch (pixelFormat) {
         case VmbPixelFormatMono8:
+        case VmbPixelFormatBayerRG8:
             dataType = NDUInt8;
             colorMode = NDColorModeMono;
             numColors = 1;
@@ -427,14 +486,6 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     }
     dataSize = dims[0] * dims[1] * pixelSize;
     if (nDims == 3) dataSize *= dims[2];
-    VmbUint32_t vmbDataSize;
-    pFrame->GetImageSize(vmbDataSize);
-    if (dataSize != vmbDataSize) {
-        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-            "%s:%s: data size mismatch: calculated=%lu, reported=%u\n",
-            driverName, functionName, (long)dataSize, vmbDataSize);
-        //return asynError;
-    }
     setIntegerParam(NDArraySizeX, (int)nCols);
     setIntegerParam(NDArraySizeY, (int)nRows);
     setIntegerParam(NDArraySize, (int)dataSize);
@@ -461,8 +512,6 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
         status = asynError;
         goto done;
     }
-    VmbUchar_t *pData;
-    pFrame->GetImage(pData);
     if (pData) {
         memcpy(pRaw_->pData, pData, dataSize);
     } else {
@@ -503,6 +552,7 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     epicsEventSignal(newFrameEventId_);
 
     done:
+    if (pConvertBuffer) free(pConvertBuffer);
     pCamera_->QueueFrame(pFrame);
     unlock();
     return status;
@@ -511,13 +561,13 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
 asynStatus ADVimba::readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], 
                                size_t nElements, size_t *nIn)
 {
-//    int function = pasynUser->reason;
+    int function = pasynUser->reason;
     //static const char *functionName = "readEnum";
 
     // There are a few enums we don't want to autogenerate the values
-//    if (function == SPConvertPixelFormat) {
-//        return asynError;
-//    }
+    if (function == VMBConvertPixelFormat) {
+        return asynError;
+    }
     
     return ADGenICam::readEnum(pasynUser, strings, values, severities, nElements, nIn);
 }
@@ -578,12 +628,12 @@ asynStatus ADVimba::readStatus()
     paramNames.push_back("StatPacketReceived");
     paramNames.push_back("StatPacketRequested");
     paramNames.push_back("StatPacketResent");
+    paramNames.push_back("DeviceTemperature");
 
     for(i=0; i<paramNames.size(); i++) {
         pFeature = mGCFeatureSet.getByName(paramNames[i]);
         if (pFeature) pFeature->read(0, true);
     }
-
     if (acquiring_) return asynSuccess;
     return ADGenICam::readStatus();
 }
