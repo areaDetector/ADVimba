@@ -156,7 +156,6 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     system_(VimbaSystem::GetInstance()), 
     exiting_(false),
     acquiring_(false),
-    pRaw_(NULL), 
     uniqueId_(0)
 {
     static const char *functionName = "ADVimba";
@@ -232,7 +231,6 @@ void ADVimba::shutdown(void)
     
     lock();
     exiting_ = true;
-    delete pFrameObserver_;
     pCamera_->Close();
     system_.Shutdown();
     unlock();
@@ -337,6 +335,7 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     int imageCounter;
     int numImagesCounter;
     int arrayCallbacks;
+    NDArray *pRaw = NULL;
     static const char *functionName = "processFrame";
 
     lock();
@@ -358,29 +357,29 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     getIntegerParam(VMBConvertPixelFormat, &convertPixelFormat);
     if (convertPixelFormat != VMBPixelConvertNone) {
         VmbPixelFormatType outputPixelFormat;
-//        VmbPixelLayout pixelLayout = VmbPixelLayoutMono;
+        VmbPixelLayout pixelLayout = VmbPixelLayoutMono;
         int bitsPerPixel = 8;
         switch (convertPixelFormat) {
             case VMBPixelConvertMono8:
-//                pixelLayout = VmbPixelLayoutMono;
+                pixelLayout = VmbPixelLayoutMono;
                 outputPixelFormat = VmbPixelFormatMono8;
                 bitsPerPixel = 8;
                 numColors = 1;
                 break;
             case VMBPixelConvertMono16:
-//                pixelLayout = VmbPixelLayoutMono;
+                pixelLayout = VmbPixelLayoutMono;
                 outputPixelFormat = VmbPixelFormatMono16;
                 bitsPerPixel = 16;
                 numColors = 1;
                 break;
             case VMBPixelConvertRGB8:
-//                pixelLayout = VmbPixelLayoutRGB;
+                pixelLayout = VmbPixelLayoutRGB;
                 outputPixelFormat = VmbPixelFormatRgb8;
                 bitsPerPixel = 8;
                 numColors = 3;
                 break;
             case VMBPixelConvertRGB16:
-//                pixelLayout = VmbPixelLayoutRGB;
+                pixelLayout = VmbPixelLayoutRGB;
                 outputPixelFormat = VmbPixelFormatRgb16;
                 bitsPerPixel = 16;
                 numColors = 3;
@@ -404,12 +403,16 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
         outputImage.Data = pConvertBuffer;
         // Fill image info from input pixel format
         vmbStatus = VmbSetImageInfoFromPixelFormat(pixelFormat, nCols, nRows, &inputImage);
-        // Fill destination image info from output pixel format
-        vmbStatus = VmbSetImageInfoFromPixelFormat(outputPixelFormat, nCols, nRows, &outputImage);
-//        vmbStatus = VmbSetImageInfoFromInputImage(&inputImage, pixelLayout, bitsPerPixel, &outputImage);
+        // Fill destination image info from input image
+        vmbStatus = VmbSetImageInfoFromInputImage(&inputImage, pixelLayout, bitsPerPixel, &outputImage);
+        if (vmbStatus != VmbErrorSuccess) {
+            asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
+                "%s::%s error calling VmbImageTransform, input pixel format=0x%x, pixelLayout=%d, status return=%d\n", 
+                driverName, functionName, pixelFormat, pixelLayout, vmbStatus);
+        }
         // Set the debayering algorithm to simple 2 by 2
         vmbStatus = VmbSetDebayerMode(VmbDebayerMode2x2, &transformInfo);
-        // perform the transformation
+        // Perform the transformation
         vmbStatus = VmbImageTransform(&inputImage, &outputImage, &transformInfo, 1);
         if (vmbStatus == VmbErrorSuccess) {
             pixelFormat = outputPixelFormat;
@@ -485,8 +488,8 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     }
     setIntegerParam(NDColorMode, colorMode);
 
-    pRaw_ = pNDArrayPool->alloc(nDims, dims, dataType, 0, NULL);
-    if (!pRaw_) {
+    pRaw = pNDArrayPool->alloc(nDims, dims, dataType, 0, NULL);
+    if (!pRaw) {
         // If we didn't get a valid buffer from the NDArrayPool we must abort
         // the acquisition as we have nowhere to dump the data...
         setIntegerParam(ADStatus, ADStatusAborting);
@@ -499,7 +502,7 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
         goto done;
     }
     if (pData) {
-        memcpy(pRaw_->pData, pData, dataSize);
+        memcpy(pRaw->pData, pData, dataSize);
     } else {
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
             "%s::%s [%s] ERROR: pData is NULL!\n",
@@ -513,25 +516,25 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     if (uniqueIdMode == UniqueIdCamera) {
         VmbUint64_t uniqueId;
         pFrame->GetFrameID(uniqueId);
-        pRaw_->uniqueId = uniqueId;
+        pRaw->uniqueId = uniqueId;
     } else {
-        pRaw_->uniqueId = uniqueId_;
+        pRaw->uniqueId = uniqueId_;
     }
     uniqueId_++;
-    updateTimeStamp(&pRaw_->epicsTS);
+    updateTimeStamp(&pRaw->epicsTS);
     getIntegerParam(VMBTimeStampMode, &timeStampMode);
     // Set the timestamps in the buffer
     if (timeStampMode == TimeStampCamera) {
         VmbUint64_t timeStamp;
         pFrame->GetTimestamp(timeStamp);
-        pRaw_->timeStamp = timeStamp / 1e9;
+        pRaw->timeStamp = timeStamp / 1e9;
     } else {
-        pRaw_->timeStamp = pRaw_->epicsTS.secPastEpoch + pRaw_->epicsTS.nsec/1e9;
+        pRaw->timeStamp = pRaw->epicsTS.secPastEpoch + pRaw->epicsTS.nsec/1e9;
     }
 
     // Get any attributes that have been defined for this driver        
-    getAttributes(pRaw_->pAttributeList);
-    pRaw_->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
+    getAttributes(pRaw->pAttributeList);
+    pRaw->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
     getIntegerParam(NDArrayCounter, &imageCounter);
     getIntegerParam(ADNumImagesCounter, &numImagesCounter);
     imageCounter++;
@@ -541,20 +544,17 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
     if (arrayCallbacks) {
         // Call the NDArray callback
-        doCallbacksGenericPointer(pRaw_, NDArrayData, 0);
+        doCallbacksGenericPointer(pRaw, NDArrayData, 0);
     }
-    // Release the NDArray buffer now that we are done with it.
-    // After the callback just above we don't need it anymore
-    pRaw_->release();
-    pRaw_ = NULL;
-    
-    callParamCallbacks();
-
-    epicsEventSignal(newFrameEventId_);
 
     done:
+    callParamCallbacks();
+    // Release the NDArray buffer now that we are done with it.
+    // After the callback just above we don't need it anymore
+    if (pRaw) pRaw->release();
     if (pConvertBuffer) free(pConvertBuffer);
     pCamera_->QueueFrame(pFrame);
+    epicsEventSignal(newFrameEventId_);
     unlock();
     return status;
 }
@@ -583,10 +583,9 @@ asynStatus ADVimba::startCapture()
     // Start the camera transmission...
     setIntegerParam(ADNumImagesCounter, 0);
     setShutter(1);
-    // How to we avoid having to create a new FrameObserver each time we start acquisition?
-    // The smart pointer seems to be deleted by StartContinuousImageAcquisition?             
-    pFrameObserver_ = new FrameObserver(pCamera_, this);
-    pCamera_->StartContinuousImageAcquisition(NUM_VIMBA_BUFFERS, IFrameObserverPtr(pFrameObserver_));
+    // Need to make a copy of the frameObserver pointer, because the one passed gets deleted
+    FrameObserver *frameObserver = pFrameObserver_;          
+    pCamera_->StartContinuousImageAcquisition(NUM_VIMBA_BUFFERS, IFrameObserverPtr(frameObserver));
     acquiring_ = true;
     epicsEventSignal(startEventId_);
     return asynSuccess;
