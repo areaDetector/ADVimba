@@ -17,11 +17,7 @@ $(PROD_NAME)_SRCS += $(PROD_NAME)_registerRecordDeviceDriver.cpp $(PROD_NAME)Mai
 # Add locally compiled object code
 PROD_LIBS += ADVimba
 PROD_LIBS += ADGenICam 
-ifeq (debug, $(findstring debug, $(T_A)))
-  PROD_LIBS_WIN32 += VimbaCPP
-else
-  PROD_LIBS_WIN32 += VimbaCPP
-endif
+PROD_LIBS_WIN32 += VimbaCPP VimbaImageTransform
 PROD_SYS_LIBS_Linux += VimbaCPP
 PROD_SYS_LIBS_Linux += VimbaImageTransform
 PROD_SYS_LIBS_Linux += VimbaC
