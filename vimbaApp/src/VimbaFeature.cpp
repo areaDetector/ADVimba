@@ -68,12 +68,12 @@ VimbaFeature::VimbaFeature(GenICamFeatureSet *set,
     }
 }
 
-inline asynStatus VimbaFeature::checkError(VmbErrorType error, const char *functionName, const char *PGRFunction)
+inline asynStatus VimbaFeature::checkError(VmbErrorType error, const char *functionName, const char *VMBFunction)
 {
     if (VmbErrorSuccess != error) {
         asynPrint(mAsynUser, ASYN_TRACE_ERROR,
             "%s:%s: ERROR calling %s error=%d\n",
-            driverName, functionName, PGRFunction, error);
+            driverName, functionName, VMBFunction, error);
         return asynError;
     }
     return asynSuccess;
@@ -84,10 +84,13 @@ bool VimbaFeature::isImplemented() {
 }
 
 bool VimbaFeature::isAvailable() {
-    bool value;
+    // Vimba does not support isAvailable.  We simulate it by checking if it is readable or writable.
+    bool readable;
+    bool writable;
     if (!mIsImplemented) return false;
-    checkError(mFeaturePtr->IsReadable(value), "isAvailable", "IsReadable");
-    return value;
+    checkError(mFeaturePtr->IsReadable(readable), "isAvailable", "IsReadable");
+    checkError(mFeaturePtr->IsWritable(writable), "isAvailable", "IsWritable");
+    return (readable || writable);
 }
 
 bool VimbaFeature::isReadable() { 
