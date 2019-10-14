@@ -264,11 +264,9 @@ asynStatus ADVimba::connectCamera(void)
 void ADVimba::imageGrabTask()
 {
     int acquire;
-    int imageCounter;
     int numImages;
     int numImagesCounter;
     int imageMode;
-    int arrayCallbacks;
     static const char *functionName = "imageGrabTask";
 
     lock();
@@ -306,24 +304,9 @@ void ADVimba::imageGrabTask()
         unlock();
         epicsEventWait(newFrameEventId_);
         lock();
-        getIntegerParam(NDArrayCounter, &imageCounter);
         getIntegerParam(ADNumImages, &numImages);
         getIntegerParam(ADNumImagesCounter, &numImagesCounter);
         getIntegerParam(ADImageMode, &imageMode);
-        imageCounter++;
-        numImagesCounter++;
-        setIntegerParam(NDArrayCounter, imageCounter);
-        setIntegerParam(ADNumImagesCounter, numImagesCounter);
-        getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
-        if (arrayCallbacks) {
-            // Call the NDArray callback
-            doCallbacksGenericPointer(pRaw_, NDArrayData, 0);
-        }
-        // Release the NDArray buffer now that we are done with it.
-        // After the callback just above we don't need it anymore
-        pRaw_->release();
-        pRaw_ = NULL;
-
         // See if acquisition is done if we are in single or multiple mode
         if ((imageMode == ADImageSingle) || ((imageMode == ADImageMultiple) && (numImagesCounter >= numImages))) {
             setIntegerParam(ADStatus, ADStatusIdle);
@@ -351,6 +334,9 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     int timeStampMode;
     VmbUchar_t *pConvertBuffer = NULL;
     VmbUchar_t *pData = NULL;
+    int imageCounter;
+    int numImagesCounter;
+    int arrayCallbacks;
     static const char *functionName = "processFrame";
 
     lock();
@@ -546,6 +532,21 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     // Get any attributes that have been defined for this driver        
     getAttributes(pRaw_->pAttributeList);
     pRaw_->pAttributeList->add("ColorMode", "Color mode", NDAttrInt32, &colorMode);
+    getIntegerParam(NDArrayCounter, &imageCounter);
+    getIntegerParam(ADNumImagesCounter, &numImagesCounter);
+    imageCounter++;
+    numImagesCounter++;
+    setIntegerParam(NDArrayCounter, imageCounter);
+    setIntegerParam(ADNumImagesCounter, numImagesCounter);
+    getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
+    if (arrayCallbacks) {
+        // Call the NDArray callback
+        doCallbacksGenericPointer(pRaw_, NDArrayData, 0);
+    }
+    // Release the NDArray buffer now that we are done with it.
+    // After the callback just above we don't need it anymore
+    pRaw_->release();
+    pRaw_ = NULL;
     
     callParamCallbacks();
 
