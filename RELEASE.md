@@ -1,13 +1,10 @@
 ADVimba Releases
 ==================
 
-The latest untagged master branch can be obtained at
+The latest untagged master branch and tagged releases can be obtained at
 https://github.com/areaDetector/ADVimba.
 
-Tagged source code releases from R2-0 onward can be obtained at 
-https://github.com/areaDetector/ADVimba/releases.
-
-Tagged prebuilt binaries from R2-0 onward can be obtained at
+Tagged prebuilt binaries can be obtained at
 https://cars.uchicago.edu/software/pub/ADVimba.
 
 The versions of EPICS base, asyn, and other synApps modules used for each release can be obtained from 
