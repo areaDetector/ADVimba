@@ -632,6 +632,8 @@ asynStatus ADVimba::readStatus()
     unsigned i;
     //static const char *functionName = "readStatus";
 
+    if (exiting_) return asynSuccess;
+
     // If acquiring then just read a small set of status features, else read all features
     if (acquiring_) {
         for (i=0; i<statusFeatureNames_.size(); i++) {
