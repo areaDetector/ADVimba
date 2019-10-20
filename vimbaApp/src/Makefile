@@ -6,7 +6,9 @@ include $(TOP)/configure/CONFIG
 LIBRARY_IOC_WIN32 += ADVimba
 LIBRARY_IOC_Linux += ADVimba
 
-#USR_CXXFLAGS_Linux += -fmax-errors=10
+ifeq ($(STATIC_BUILD), YES)
+  USR_CXXFLAGS_WIN32 += -DAVT_VMBAPI_CPP_LIB
+endif
 
 LIB_SRCS += VimbaFeature.cpp
 LIB_SRCS += ADVimba.cpp
