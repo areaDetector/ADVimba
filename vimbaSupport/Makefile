@@ -13,13 +13,15 @@ INC += $(patsubst ../%, %, $(wildcard ../Common/*))
 # and from /usr/lib on Linux.
 ifeq (windows-x64, $(findstring windows-x64, $(T_A)))
 LIB_INSTALLS    += ../os/windows-x64/VimbaC.lib
-LIB_INSTALLS    += ../os/windows-x64/VimbaCPP.lib
 LIB_INSTALLS    += ../os/windows-x64/VimbaImageTransform.lib
+BIN_INSTALLS    += ../os/windows-x64/VimbaGigETL.cti
+BIN_INSTALLS    += ../os/windows-x64/VimbaGigETL.xml
 
 else ifeq (win32-x86, $(findstring win32-x86, $(T_A)))
 LIB_INSTALLS    += ../os/win32-x86/VimbaC.lib
-LIB_INSTALLS    += ../os/win32-x86/VimbaCPP.lib
 LIB_INSTALLS    += ../os/win32-x86/VimbaImageTransform.lib
+BIN_INSTALLS    += ../os/win32-x86/VimbaGigETL.cti
+BIN_INSTALLS    += ../os/win32-x86/VimbaGigETL.xml
 
 else ifeq (linux-x86_64, $(findstring linux-x86_64, $(T_A)))
 LIB_INSTALLS    += ../os/linux-x86_64/libVimbaC.so
@@ -73,6 +75,8 @@ LIB_SRCS += RawFeature.cpp
 LIB_SRCS += Semaphore.cpp
 LIB_SRCS += StringFeature.cpp
 LIB_SRCS += VimbaSystem.cpp
+
+LIB_LIBS += VimbaC
 
 #=============================
 
