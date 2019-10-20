@@ -40,7 +40,12 @@ LIBRARY_IOC_Linux += VimbaCPP
 
 SRC_DIRS += $(TOP)/vimbaSupport/VimbaCPP/Source
 
-USR_CXXFLAGS_ += -fmax-errors=10
+USR_CXXFLAGS_WIN32 += -DWIN32
+ifeq ($(STATIC_BUILD), YES)
+  USR_CXXFLAGS_WIN32 += -DAVT_VMBAPI_CPP_LIB
+else
+  USR_CXXFLAGS_WIN32 += -DAVT_VMBAPI_CPP_EXPORTS
+endif
 
 LIB_SRCS += AncillaryData.cpp
 LIB_SRCS += BaseFeature.cpp
