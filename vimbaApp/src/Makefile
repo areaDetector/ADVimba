@@ -13,7 +13,7 @@ endif
 LIB_SRCS += VimbaFeature.cpp
 LIB_SRCS += ADVimba.cpp
 
-LIB_LIBS  += VimbaCPP VimbaC
+LIB_LIBS  += VimbaCPP VimbaC VimbaImageTransform ADGenICam
 
 DBD += ADVimbaSupport.dbd
 
