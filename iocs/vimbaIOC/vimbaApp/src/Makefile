@@ -7,6 +7,10 @@ PROD_NAME = vimbaApp
 PROD_IOC_WIN32 += $(PROD_NAME)
 PROD_IOC_Linux += $(PROD_NAME)
 
+ifeq ($(STATIC_BUILD), YES)
+  USR_CXXFLAGS_WIN32 += -DAVT_VMBAPI_CPP_LIB
+endif
+
 # <name>.dbd will be created from <name>Include.dbd
 DBD += $(PROD_NAME).dbd
 $(PROD_NAME)_DBD += ADVimbaSupport.dbd
@@ -17,10 +21,9 @@ $(PROD_NAME)_SRCS += $(PROD_NAME)_registerRecordDeviceDriver.cpp $(PROD_NAME)Mai
 # Add locally compiled object code
 PROD_LIBS += ADVimba
 PROD_LIBS += ADGenICam 
-PROD_LIBS_WIN32 += VimbaCPP VimbaImageTransform
-PROD_SYS_LIBS_Linux += VimbaCPP
-PROD_SYS_LIBS_Linux += VimbaImageTransform
-PROD_SYS_LIBS_Linux += VimbaC
+PROD_LIBS_WIN32 += VimbaCPP VimbaC VimbaImageTransform
+PROD_LIBS_Linux += VimbaCPP 
+PROD_SYS_LIBS_Linux += VimbaC VimbaImageTransform
 
 include $(ADCORE)/ADApp/commonDriverMakefile
 
