@@ -16,6 +16,6 @@ files respectively, in the configure/ directory of the appropriate release of th
 Release Notes
 =============
 
-R1-0 (XXX-October-2019)
+R1-0 (October-20-2019)
 ----
 * Initial release
