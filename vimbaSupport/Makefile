@@ -24,10 +24,14 @@ LIB_INSTALLS    += ../os/win32-x86/VimbaImageTransform.lib
 else ifeq (linux-x86_64, $(findstring linux-x86_64, $(T_A)))
 LIB_INSTALLS    += ../os/linux-x86_64/libVimbaC.so
 LIB_INSTALLS    += ../os/linux-x86_64/libVimbaImageTransform.so
+BIN_INSTALLS    += ../os/linux-x86_64/VimbaGigETL.cti
+BIN_INSTALLS    += ../os/linux-x86_64/VimbaGigETL.xml
 
 else ifeq (linux-x86, $(findstring linux-x86, $(T_A)))
 LIB_INSTALLS    += ../os/linux-x86/libVimbaC.so
 LIB_INSTALLS    += ../os/linux-x86/libVimbaImageTransform.so
+BIN_INSTALLS    += ../os/linux-x86/VimbaGigETL.cti
+BIN_INSTALLS    += ../os/linux-x86/VimbaGigETL.xml
 
 endif
 
@@ -36,7 +40,7 @@ LIBRARY_IOC_Linux += VimbaCPP
 
 SRC_DIRS += $(TOP)/vimbaSupport/VimbaCPP/Source
 
-#USR_CXXFLAGS_Linux += -fmax-errors=10
+USR_CXXFLAGS_ += -fmax-errors=10
 
 LIB_SRCS += AncillaryData.cpp
 LIB_SRCS += BaseFeature.cpp
@@ -64,8 +68,6 @@ LIB_SRCS += RawFeature.cpp
 LIB_SRCS += Semaphore.cpp
 LIB_SRCS += StringFeature.cpp
 LIB_SRCS += VimbaSystem.cpp
-
-LIB_LIBS  += VimbaC
 
 #=============================
 
