@@ -111,28 +111,28 @@ int VimbaFeature::readInteger() {
     VmbInt64_t value; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetValue(value), "readInteger", "GetValue");
-    return value;
+    return (int)value;
 }
 
 int VimbaFeature::readIntegerMin() {
     VmbInt64_t min, max; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetRange(min, max), "readIntegerMin", "GetRange");
-    return min;
+    return (int)min;
 }
 
 int VimbaFeature::readIntegerMax() {
     VmbInt64_t min, max; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetRange(min, max), "readIntegerMax", "GetRange");
-    return max;
+    return (int)max;
 }
 
 int VimbaFeature::readIncrement() { 
     VmbInt64_t inc; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetIncrement(inc), "readIncrement", "GetIncrement");
-    return inc;
+    return (int)inc;
 }
 
 void VimbaFeature::writeInteger(int value) { 
@@ -182,7 +182,7 @@ int VimbaFeature::readEnumIndex() {
     VmbInt64_t value;
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetValue(value), "readEnumIndex", "GetValue"); 
-    return value;
+    return (int)value;
 }
 
 void VimbaFeature::writeEnumIndex(int value) {
@@ -235,7 +235,7 @@ void VimbaFeature::readEnumChoices(std::vector<std::string>& enumStrings, std::v
         if (available) {
             checkError(entries[i].GetDisplayName(str), "readEnumChoices", "GetDisplayName");
             enumStrings.push_back(str);
-            enumValues.push_back(value);
+            enumValues.push_back((int)value);
         }
     }
 }

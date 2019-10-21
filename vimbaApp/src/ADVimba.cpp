@@ -526,7 +526,7 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     if (uniqueIdMode == UniqueIdCamera) {
         VmbUint64_t uniqueId;
         pFrame->GetFrameID(uniqueId);
-        pRaw->uniqueId = uniqueId;
+        pRaw->uniqueId = (int)uniqueId;
     } else {
         pRaw->uniqueId = uniqueId_;
     }
@@ -655,7 +655,7 @@ void ADVimba::report(FILE *fp, int details)
 
     CameraPtrVector cameras;
     checkError(system_.GetCameras(cameras), functionName, "VimbaSystem::GetCameras()");
-    numCameras = cameras.size();
+    numCameras = (int)cameras.size();
     fprintf(fp, "\nNumber of cameras detected: %d\n", numCameras);
     if (details > 1) {
         CameraPtr pCamera;
