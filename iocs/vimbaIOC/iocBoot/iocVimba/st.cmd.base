@@ -3,7 +3,7 @@
 epicsEnvSet("PREFIX", "13VMB1:")
 
 # Location of transport layer definition files
-epicsEnvSet("GENICAM_GENTL64_PATH", "$(ADVIMBA)/bin/$(EPICS_HOST_ARCH)")
+epicsEnvSet("GENICAM_GENTL64_PATH", "$(ADVIMBA)/bin/$(ARCH)")
 
 # The port name for the detector
 epicsEnvSet("PORT",   "VMB1")
