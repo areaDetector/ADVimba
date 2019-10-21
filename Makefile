@@ -2,9 +2,12 @@
 TOP = .
 include $(TOP)/configure/CONFIG
 DIRS := $(DIRS) configure
-DIRS := $(DIRS) vimbaSupport
+DIRS := $(DIRS) vimbaSupportC
+DIRS := $(DIRS) vimbaSupportCPP
 DIRS := $(DIRS) vimbaApp
-vimbaApp_DEPEND_DIRS += vimbaSupport
+vimbaSupportCPP_DEPEND_DIRS += vimbaSupportC
+vimbaApp_DEPEND_DIRS += vimbaSupportC vimbaSupportCPP
+
 ifeq ($(BUILD_IOCS), YES)
 DIRS := $(DIRS) $(filter-out $(DIRS), $(wildcard iocs))
 iocs_DEPEND_DIRS += vimbaApp
