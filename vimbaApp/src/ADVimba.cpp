@@ -98,14 +98,6 @@ void ADVimbaFrameObserver::FrameReceived(const FramePtr pFrame) {
  * function instanciates one object from the ADVimba class.
  * \param[in] portName asyn port name to assign to the camera.
  * \param[in] cameraId The camera index or serial number; <1000 is assumed to be index, >=1000 is assumed to be serial number.
- * \param[in] traceMask The initial value of the asynTraceMask.  
- *            If set to 0 or 1 then asynTraceMask will be set to ASYN_TRACE_ERROR.
- *            If set to 0x21 (ASYN_TRACE_WARNING | ASYN_TRACE_ERROR) then each call to the
- *            FlyCap2 library will be traced including during initialization.
- * \param[in] memoryChannel  The camera memory channel (non-volatile memory containing camera parameters) 
- *            to load during initialization.  If 0 no memory channel is loaded.
- *            If >=1 thenRestoreFromMemoryChannel(memoryChannel-1) is called.  
- *            Set memoryChannel to 1 to work around a bug in the Linux GigE driver in R2.0.
  * \param[in] maxMemory Maximum memory (in bytes) that this driver is allowed to allocate. So if max. size = 1024x768 (8bpp)
  *            and maxBuffers is, say 14. maxMemory = 1024x768x14 = 11010048 bytes (~11MB). 0=unlimited.
  * \param[in] priority The EPICS thread priority for this driver.  0=use asyn default.
@@ -136,14 +128,6 @@ static void imageGrabTaskC(void *drvPvt)
 /** Constructor for the ADVimba class
  * \param[in] portName asyn port name to assign to the camera.
  * \param[in] cameraId The camera index or serial number; <1000 is assumed to be index, >=1000 is assumed to be serial number.
- * \param[in] traceMask The initial value of the asynTraceMask.  
- *            If set to 0 or 1 then asynTraceMask will be set to ASYN_TRACE_ERROR.
- *            If set to 0x21 (ASYN_TRACE_WARNING | ASYN_TRACE_ERROR) then each call to the
- *            FlyCap2 library will be traced including during initialization.
- * \param[in] memoryChannel  The camera memory channel (non-volatile memory containing camera parameters) 
- *            to load during initialization.  If 0 no memory channel is loaded.
- *            If >=1 thenRestoreFromMemoryChannel(memoryChannel-1) is called.  
- *            Set memoryChannel to 1 to work around a bug in the Linux GigE driver in R2.0.
  * \param[in] maxMemory Maximum memory (in bytes) that this driver is allowed to allocate. So if max. size = 1024x768 (8bpp)
  *            and maxBuffers is, say 14. maxMemory = 1024x768x14 = 11010048 bytes (~11MB). 0=unlimited.
  * \param[in] priority The EPICS thread priority for this driver.  0=use asyn default.
