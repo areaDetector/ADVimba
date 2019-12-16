@@ -107,35 +107,35 @@ bool VimbaFeature::isWritable() {
     return value;
 }
 
-int VimbaFeature::readInteger() {
+epicsInt64 VimbaFeature::readInteger() {
     VmbInt64_t value; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetValue(value), "readInteger", "GetValue");
-    return (int)value;
+    return value;
 }
 
-int VimbaFeature::readIntegerMin() {
+epicsInt64 VimbaFeature::readIntegerMin() {
     VmbInt64_t min, max; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetRange(min, max), "readIntegerMin", "GetRange");
-    return (int)min;
+    return min;
 }
 
-int VimbaFeature::readIntegerMax() {
+epicsInt64 VimbaFeature::readIntegerMax() {
     VmbInt64_t min, max; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetRange(min, max), "readIntegerMax", "GetRange");
-    return (int)max;
+    return max;
 }
 
-int VimbaFeature::readIncrement() { 
+epicsInt64 VimbaFeature::readIncrement() { 
     VmbInt64_t inc; 
     if (!mIsImplemented) return 0;
     checkError(mFeaturePtr->GetIncrement(inc), "readIncrement", "GetIncrement");
-    return (int)inc;
+    return inc;
 }
 
-void VimbaFeature::writeInteger(int value) { 
+void VimbaFeature::writeInteger(epicsInt64 value) { 
     if (!mIsImplemented) return;
     checkError(mFeaturePtr->SetValue(value), "writeInteger", "SetValue");
 }
