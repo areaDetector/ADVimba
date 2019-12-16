@@ -16,6 +16,11 @@ files respectively, in the configure/ directory of the appropriate release of th
 Release Notes
 =============
 
+R1-1 (December-XXX-2019)
+----
+* Change VimbaFeature support for GenICam features from int (32-bit) to epicsInt64 (64-bit)
+* Fixed Doyxgen comment errors in the driver.
+
 R1-0 (October-20-2019)
 ----
 * Initial release
