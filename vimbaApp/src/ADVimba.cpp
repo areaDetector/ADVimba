@@ -38,7 +38,7 @@ using namespace std;
 #include "ADVimba.h"
 
 #define DRIVER_VERSION      1
-#define DRIVER_REVISION     0
+#define DRIVER_REVISION     1
 #define DRIVER_MODIFICATION 0
 
 static const char *driverName = "ADVimba";
