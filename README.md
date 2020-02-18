@@ -2,7 +2,7 @@ ADVimba
 ===========
 An 
 [EPICS](http://www.aps.anl.gov/epics)
-[areaDetector](https://cars.uchicago.edu/software/epics/areaDetector.html)
+[areaDetector](https://github.com/areaDetector/areaDetector/blob/master/README.md)
 driver for cameras from 
 [Allied Vision](http://www.alliedvision.com) using their Vimba SDK.
 These include GigE and USB-3 cameras.  
