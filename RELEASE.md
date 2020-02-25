@@ -15,6 +15,9 @@ files respectively, in the configure/ directory of the appropriate release of th
 
 Release Notes
 =============
+R1-2 (February XXX, 2020)
+----
+* Add .bob files for Phoebus Display Manager
 
 R1-1 (January 5, 2020)
 ----
