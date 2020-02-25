@@ -14,5 +14,5 @@ ADVimba is based on [ADGenICam](https://areadetector.github.io/master/ADGenICam/
 which handles many of the details of mapping GenICam features to EPICS records.
 
 Additional information:
-* [Documentation](https://areadetector.github.io/master/ADVimba/ADVimba.html).
-* [Release notes and links to source and binary releases](RELEASE.md).
+* [Documentation](https://areadetector.github.io/master/ADVimba/ADVimba.html)
+* [Release notes and links to source and binary releases](RELEASE.md)
