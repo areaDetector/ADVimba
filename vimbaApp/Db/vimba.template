@@ -79,7 +79,7 @@ record(mbbi, "$(P)$(R)ConvertPixelFormat_RBV") {
 
 # GigE statistics
 record(longin, "$(P)$(R)GC_StatFrameDelivered_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatFrameDelivered")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
@@ -87,7 +87,7 @@ record(longin, "$(P)$(R)GC_StatFrameDelivered_RBV") {
 }
 
 record(longin, "$(P)$(R)GC_StatFrameDropped_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatFrameDropped")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
@@ -95,7 +95,7 @@ record(longin, "$(P)$(R)GC_StatFrameDropped_RBV") {
 }
 
 record(longin, "$(P)$(R)GC_StatFrameUnderrun_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatFrameUnderrun")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
@@ -103,7 +103,7 @@ record(longin, "$(P)$(R)GC_StatFrameUnderrun_RBV") {
 }
 
 record(longin, "$(P)$(R)GC_StatPacketErrors_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatPacketErrors")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
@@ -111,7 +111,7 @@ record(longin, "$(P)$(R)GC_StatPacketErrors_RBV") {
 }
 
 record(longin, "$(P)$(R)GC_StatPacketMissed_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatPacketMissed")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
@@ -119,7 +119,7 @@ record(longin, "$(P)$(R)GC_StatPacketMissed_RBV") {
 }
 
 record(longin, "$(P)$(R)GC_StatPacketReceived_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatPacketReceived")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
@@ -127,7 +127,7 @@ record(longin, "$(P)$(R)GC_StatPacketReceived_RBV") {
 }
 
 record(longin, "$(P)$(R)GC_StatPacketRequested_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatPacketRequested")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
@@ -135,7 +135,7 @@ record(longin, "$(P)$(R)GC_StatPacketRequested_RBV") {
 }
 
 record(longin, "$(P)$(R)GC_StatPacketResent_RBV") {
-  field(DTYP, "asynInt32")
+  field(DTYP, "asynInt64")
   field(INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))GC_I_StatPacketResent")
   field(SCAN, "I/O Intr")
   field(DISA, "0")
