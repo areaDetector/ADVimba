@@ -643,6 +643,7 @@ void ADVimba::report(FILE *fp, int details)
     fprintf(fp, "\nNumber of cameras detected: %d\n", numCameras);
     if (details > 1) {
         CameraPtr pCamera;
+        VmbInterfaceType interfaceType;
         for (i=0; i<numCameras; i++) {
             pCamera = cameras[i];
             fprintf(fp, "Camera %d\n", i);
@@ -655,8 +656,8 @@ void ADVimba::report(FILE *fp, int details)
             fprintf(fp, "        Serial #: %s\n", str.c_str());
             pCamera->GetInterfaceID(str);
             fprintf(fp, "    Interface ID: %s\n", str.c_str());
-            //pCamera->GetInterfaceType(str);
-            //fprintf(fp, "  Interface type: %s\n", str.c_str());
+            pCamera->GetInterfaceType(interfaceType);
+            fprintf(fp, "  Interface type: %d\n", interfaceType);
         }
     }
     
