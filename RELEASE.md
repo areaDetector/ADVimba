@@ -15,8 +15,10 @@ files respectively, in the configure/ directory of the appropriate release of th
 
 Release Notes
 =============
-R1-2 (April 8, 2020)
+R1-2 (April 9, 2020)
 ----
+* Fix problem with the packet and frame statistics records. 
+  They were not updating because the DTYP needed to be changed from asynInt32 to asynInt64.
 * Add .bob files for Phoebus Display Manager
 
 R1-1 (January 5, 2020)
