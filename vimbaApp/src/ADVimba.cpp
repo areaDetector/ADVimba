@@ -41,6 +41,27 @@ using namespace std;
 #define DRIVER_REVISION     1
 #define DRIVER_MODIFICATION 0
 
+#ifndef VERSION_INT
+#define VERSION_INT(V,R,M,P) ( ((V)<<24) | ((R)<<16) | ((M)<<8) | (P))
+#endif
+
+#ifndef EPICS_VERSION_INT
+#define EPICS_VERSION_INT VERSION_INT(EPICS_VERSION, EPICS_REVISION, EPICS_MODIFICATION, EPICS_PATCH_LEVEL)
+#endif
+
+#if EPICS_VERSION_INT<VERSION_INT(3,15,0,1)
+#define USE_OLD_EPICS_EVENT_DEFINITIONS
+#endif
+
+#ifdef USE_OLD_EPICS_EVENT_DEFINITIONS
+#define EPICS_EVENT_OK epicsEventWaitOK
+#define EPICS_EVENT_WAIT_STATUS epicsEventWaitStatus
+#else
+#define EPICS_EVENT_OK epicsEventOK
+#define EPICS_EVENT_WAIT_STATUS epicsEventStatus
+#endif
+
+
 static const char *driverName = "ADVimba";
 
 // Size of message queue for callback function
@@ -292,9 +313,9 @@ void ADVimba::imageGrabTask()
 
         // Wait for event saying image has been collected
         unlock();
-        epicsEventStatus waitStatus = epicsEventWaitWithTimeout(newFrameEventId_, 0.1);
+        EPICS_EVENT_WAIT_STATUS waitStatus = epicsEventWaitWithTimeout(newFrameEventId_, 0.1);
         lock();
-        if (waitStatus == epicsEventOK) {
+        if (waitStatus == EPICS_EVENT_OK) {
             getIntegerParam(ADNumImages, &numImages);
             getIntegerParam(ADNumImagesCounter, &numImagesCounter);
             getIntegerParam(ADImageMode, &imageMode);
