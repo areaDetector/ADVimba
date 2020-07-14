@@ -292,9 +292,9 @@ void ADVimba::imageGrabTask()
 
         // Wait for event saying image has been collected
         unlock();
-        epicsEventStatus waitStatus = epicsEventWaitWithTimeout(newFrameEventId_, 0.1);
+        epicsEventWaitStatus waitStatus = epicsEventWaitWithTimeout(newFrameEventId_, 0.1);
         lock();
-        if (waitStatus == epicsEventOK) {
+        if (waitStatus == epicsEventWaitOK) {
             getIntegerParam(ADNumImages, &numImages);
             getIntegerParam(ADNumImagesCounter, &numImagesCounter);
             getIntegerParam(ADImageMode, &imageMode);
