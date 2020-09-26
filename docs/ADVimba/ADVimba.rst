@@ -13,6 +13,7 @@ ADVimba
 .. _ADVimba:      https://github.com/areaDetector/ADVimba
 .. _ADSupport:    https://github.com/areaDetector/ADSupport
 .. _Vimba:        https://www.alliedvision.com/en/products/software.html
+.. _ADVimba class: ../areaDetectorDoxygenHTML/class_a_d_vimba.html
 
 Overview
 --------
@@ -22,7 +23,9 @@ This is an :doc:`../index` driver for GenICam_ cameras using the Vimba_ library.
 GenICam_ is a Generic Interface for Cameras from the European Machine Vision Association (EMVA). 
 
 ADVimba is derived from the base class ADGenICam_, which handles many of the details of
-mapping GenICam_ features to EPICS records. 
+mapping GenICam_ features to EPICS records.
+
+`ADVimba class`_ describes this class in detail.
 
 As it name implies, ADVimba_ uses the AVT/Prosilica Vimba_ library.
 It runs on Windows, and on many versions of Linux, including RHEL7/Centos7.  
