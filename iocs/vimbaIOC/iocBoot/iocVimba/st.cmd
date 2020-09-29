@@ -22,7 +22,7 @@ epicsEnvSet("NCHANS", "2048")
 # The maximum number of frames buffered in the NDPluginCircularBuff plugin
 epicsEnvSet("CBUFFS", "500")
 # The search path for database files
-epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db;$(ADVIMBA)/db")
+epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db:$(ADVIMBA)/db")
 # Define NELEMENTS to be enough for a 2048x2048x3 (color) image
 epicsEnvSet("NELEMENTS", "12592912")
 
@@ -31,7 +31,7 @@ epicsEnvSet("NELEMENTS", "12592912")
 ADVimbaConfig("$(PORT)", $(CAMERA_ID))
 asynSetTraceIOMask($(PORT), 0, 2)
 # Set ASYN_TRACE_WARNING and ASYN_TRACE_ERROR
-#asynSetTraceMask($(PORT), 0, 0xff)
+asynSetTraceMask($(PORT), 0, TRACE_ERROR|TRACEIO_DRIVER)
 #asynSetTraceFile($(PORT), 0, "asynTrace.out")
 #asynSetTraceInfoMask($(PORT), 0, 0xf)
 
