@@ -183,15 +183,14 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     startEventId_ = epicsEventCreate(epicsEventEmpty);
     newFrameEventId_ = epicsEventCreate(epicsEventEmpty);
 
-    statusFeatureNames_.push_back("StatFrameDelivered");
-    statusFeatureNames_.push_back("StatFrameDropped");
-    statusFeatureNames_.push_back("StatFrameUnderrun");
-    statusFeatureNames_.push_back("StatPacketErrors");
-    statusFeatureNames_.push_back("StatPacketMissed");
-    statusFeatureNames_.push_back("StatPacketReceived");
-    statusFeatureNames_.push_back("StatPacketRequested");
-    statusFeatureNames_.push_back("StatPacketResent");
-    statusFeatureNames_.push_back("DeviceTemperature");
+    TLStatisticsFeatureNames_.push_back("StatFrameDelivered");
+    TLStatisticsFeatureNames_.push_back("StatFrameDropped");
+    TLStatisticsFeatureNames_.push_back("StatFrameUnderrun");
+    TLStatisticsFeatureNames_.push_back("StatPacketErrors");
+    TLStatisticsFeatureNames_.push_back("StatPacketMissed");
+    TLStatisticsFeatureNames_.push_back("StatPacketReceived");
+    TLStatisticsFeatureNames_.push_back("StatPacketRequested");
+    TLStatisticsFeatureNames_.push_back("StatPacketResent");
 
     // launch image read task
     epicsThreadCreate("VimbaImageTask", 
@@ -542,6 +541,12 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     }
 
     done:
+
+    for (size_t i=0; i<TLStatisticsFeatureNames_.size(); i++) {
+         GenICamFeature *pFeature = mGCFeatureSet.getByName(TLStatisticsFeatureNames_[i]);
+         if (pFeature) pFeature->read(0, true);
+    }
+
     callParamCallbacks();
     // Release the NDArray buffer now that we are done with it.
     // After the callback just above we don't need it anymore
@@ -609,27 +614,6 @@ asynStatus ADVimba::stopCapture()
     return asynSuccess;
 }
 
-
-asynStatus ADVimba::readStatus()
-{
-    GenICamFeature *pFeature;
-    unsigned i;
-    //static const char *functionName = "readStatus";
-
-    if (exiting_) return asynSuccess;
-
-    // If acquiring then just read a small set of status features, else read all features
-    if (acquiring_) {
-        for (i=0; i<statusFeatureNames_.size(); i++) {
-            pFeature = mGCFeatureSet.getByName(statusFeatureNames_[i]);
-            if (pFeature) pFeature->read(0, true);
-        }
-    }
-    else {
-        ADGenICam::readStatus();
-    }
-    return asynSuccess;
-}
 
 void ADVimba::report(FILE *fp, int details)
 {
