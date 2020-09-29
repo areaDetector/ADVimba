@@ -63,7 +63,6 @@ private:
     asynStatus stopCapture();
     asynStatus connectCamera();
     asynStatus disconnectCamera();
-    asynStatus readStatus();
 
     const char *cameraId_;
     CameraPtr pCamera_;
@@ -75,7 +74,7 @@ private:
     epicsEventId newFrameEventId_;
     int uniqueId_;
     
-    std::vector<string> statusFeatureNames_;
+    std::vector<string> TLStatisticsFeatureNames_;
 
 };
 
