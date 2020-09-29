@@ -981,7 +981,9 @@ VimbaSystem& VimbaSystem::operator=( const VimbaSystem& )
 VimbaSystem::~VimbaSystem()
 {
     delete m_pImpl->m_pLogger;
+    m_pImpl->m_pLogger = NULL;
     delete m_pImpl;
+    m_pImpl = NULL;
 }
 
 // Instance
@@ -1153,6 +1155,8 @@ VmbErrorType VimbaSystem::Impl::UpdateCameraList()
 
 Logger VimbaSystem::GetLogger() const
 {
+    if(m_pImpl == NULL)
+        return NULL;
     return m_pImpl->m_pLogger;
 }
 
