@@ -56,16 +56,6 @@ typedef enum {
     VMBPixelConvertRGB16
 } VMBPixelConvert_t;
 
-
-/*
-static const char *gigEPropertyTypeStrings[NUM_GIGE_PROPERTIES] = {
-    "Heartbeat",
-    "HeartbeatTimeout",
-    "PacketSize",
-    "PacketDelay"
-};
-*/
-
 typedef enum {
     TimeStampCamera,
     TimeStampEPICS
@@ -241,6 +231,19 @@ asynStatus ADVimba::connectCamera(void)
                    "VimbaSystem::OpenCameraByID")) {
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
             "%s::%s error opening camera %s\n", driverName, functionName, cameraId_);
+       return asynError;
+    }
+    // Set the GeV packet size to the highest possible value
+    // (In this example we do not test whether this cam actually is a GigE cam)
+    if (!checkError((VmbErrorType)VmbFeatureCommandRun(pCamera_->GetHandle(), "GVSPAdjustPacketSize"), 
+        functionName, "VmbFeatureCommandRun")) {
+        bool done;
+        do {
+            if (checkError((VmbErrorType)VmbFeatureCommandIsDone(pCamera_->GetHandle(), "GVSPAdjustPacketSize", &done), 
+                functionName, "VmbFeatureCommandIsDone")) {
+                break;
+            }
+        } while (!done);
     }
     return asynSuccess;
 }
