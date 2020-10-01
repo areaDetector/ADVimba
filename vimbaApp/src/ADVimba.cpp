@@ -234,17 +234,17 @@ asynStatus ADVimba::connectCamera(void)
        return asynError;
     }
     // Set the GeV packet size to the highest possible value
-    // (In this example we do not test whether this cam actually is a GigE cam)
-    if (!checkError((VmbErrorType)VmbFeatureCommandRun(pCamera_->GetHandle(), "GVSPAdjustPacketSize"), 
-        functionName, "VmbFeatureCommandRun")) {
-        bool done;
-        do {
-            if (checkError((VmbErrorType)VmbFeatureCommandIsDone(pCamera_->GetHandle(), "GVSPAdjustPacketSize", &done), 
-                functionName, "VmbFeatureCommandIsDone")) {
-                break;
-            }
-        } while (!done);
-    }
+    FeaturePtr pFeature;
+    bool writeable;
+    bool done;
+    if (VmbErrorSuccess != pCamera_->GetFeatureByName("GVSPAdjustPacketSize", pFeature)) goto finished;
+    if (VmbErrorSuccess != pFeature->IsWritable(writeable)) goto finished;
+    if (!writeable) goto finished;
+    if (VmbErrorSuccess != pFeature->RunCommand()) goto finished;
+    do {
+       if (VmbErrorSuccess != pFeature->IsCommandDone(done)) goto finished;
+    } while (!done);
+    finished:
     return asynSuccess;
 }
 
