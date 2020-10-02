@@ -233,16 +233,16 @@ asynStatus ADVimba::connectCamera(void)
             "%s::%s error opening camera %s\n", driverName, functionName, cameraId_);
        return asynError;
     }
-    // Set the GeV packet size to the highest possible value
+    // Set the GeV packet size to the highest value that works
     FeaturePtr pFeature;
-    bool writeable;
     bool done;
-    if (VmbErrorSuccess != pCamera_->GetFeatureByName("GVSPAdjustPacketSize", pFeature)) goto finished;
-    if (VmbErrorSuccess != pFeature->IsWritable(writeable)) goto finished;
-    if (!writeable) goto finished;
-    if (VmbErrorSuccess != pFeature->RunCommand()) goto finished;
+    VmbInterfaceType interfaceType;
+    pCamera_->GetInterfaceType(interfaceType);
+    if (interfaceType != VmbInterfaceEthernet) goto finished;
+    if (pCamera_->GetFeatureByName("GVSPAdjustPacketSize", pFeature) != VmbErrorSuccess) goto finished;
+    if (pFeature->RunCommand() != VmbErrorSuccess) goto finished;
     do {
-       if (VmbErrorSuccess != pFeature->IsCommandDone(done)) goto finished;
+       if (pFeature->IsCommandDone(done) != VmbErrorSuccess) goto finished;
     } while (!done);
     finished:
     return asynSuccess;
