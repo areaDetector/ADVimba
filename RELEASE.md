@@ -21,7 +21,7 @@ R1-3 (October 2, 2020)
   Windows users will need to install Vimba 4.0 to get the correct drivers and DLLs.
   Linux users do not need to do anything because the 4.1 files are all included in ADVimba.
 * Added automatic packet size negotiation for GigE cameras in the constructor.
-  Previous cameras would default to jumbo packets, and if the network did not support that
+  Previously cameras would default to jumbo packets, and if the network did not support that
   then streaming would fail until the packet size feature was decreased.
 * The transport layer statistics are now updated each time an image is received, independent
   of whether the ReadStatus record is processed. Changed the OPI display to make that clear.
