@@ -15,6 +15,18 @@ files respectively, in the configure/ directory of the appropriate release of th
 
 Release Notes
 =============
+R1-3 (October 2, 2020)
+----
+* Updated the version of the Vimba SDK being used to 4.0 (Windows) and 4.1 (Linux).
+  Windows users will need to install Vimba 4.0 to get the correct drivers and DLLs.
+  Linux users do not need to do anything because the 4.1 files are all included in ADVimba.
+* Added automatic packet size negotiation for GigE cameras in the constructor.
+  Previous cameras would default to jumbo packets, and if the network did not support that
+  then streaming would fail until the packet size feature was decreased.
+* The transport layer statistics are now updated each time an image is received, independent
+  of whether the ReadStatus record is processed. Changed the OPI display to make that clear.
+* Minor change to allow the driver to work on EPICS 3.14.12.
+
 R1-2 (April 9, 2020)
 ----
 * Fix problem with the packet and frame statistics records. 
