@@ -1296,403 +1296,91 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
   </widget>
-  <widget type="group" version="2.0.0">
-    <name>composite #272</name>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #272</name>
+    <x>837</x>
+    <y>37</y>
+    <width>107</width>
+    <height>21</height>
+    <line_color>
+      <color red="218" green="218" blue="218">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="218" green="218" blue="218">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #275</name>
+    <text>Status</text>
+    <x>860</x>
+    <y>38</y>
+    <width>60</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #278</name>
     <x>715</x>
     <y>35</y>
     <width>350</width>
     <height>280</height>
-    <style>3</style>
+    <line_width>1</line_width>
+    <line_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
     <transparent>true</transparent>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #275</name>
-      <x>122</x>
-      <y>2</y>
-      <width>107</width>
-      <height>21</height>
-      <line_color>
-        <color red="218" green="218" blue="218">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="218" green="218" blue="218">
-        </color>
-      </background_color>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #278</name>
-      <text>Status</text>
-      <x>145</x>
-      <y>3</y>
-      <width>60</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #281</name>
+    <text>Temperature</text>
+    <x>785</x>
+    <y>290</y>
+    <width>110</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
       </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <horizontal_alignment>1</horizontal_alignment>
-    </widget>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #281</name>
-      <width>350</width>
-      <height>280</height>
-      <line_width>1</line_width>
-      <line_color>
-        <color red="0" green="0" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="0" green="0" blue="0">
-        </color>
-      </background_color>
-      <transparent>true</transparent>
-    </widget>
-    <widget type="combo" version="2.0.0">
-      <name>menu #284</name>
-      <pv_name>$(P)$(R)ReadStatus.SCAN</pv_name>
-      <x>185</x>
-      <y>30</y>
-      <width>80</width>
-      <height>20</height>
-      <background_color>
-        <color red="115" green="223" blue="255">
-        </color>
-      </background_color>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #287</name>
-      <text>Status rate</text>
-      <x>70</x>
-      <y>30</y>
-      <width>110</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #284</name>
+    <pv_name>$(P)$(R)TemperatureActual</pv_name>
+    <x>899</x>
+    <y>291</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
       </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #290</name>
-      <text>Frames delivered</text>
-      <x>20</x>
-      <y>55</y>
-      <width>160</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #293</name>
-      <pv_name>$(P)$(R)GC_StatFrameDelivered_RBV</pv_name>
-      <x>184</x>
-      <y>56</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #297</name>
-      <text>Frames dropped</text>
-      <x>40</x>
-      <y>80</y>
-      <width>140</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #300</name>
-      <pv_name>$(P)$(R)GC_StatFrameDropped_RBV</pv_name>
-      <x>184</x>
-      <y>81</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #304</name>
-      <text>Frame underuns</text>
-      <x>40</x>
-      <y>105</y>
-      <width>140</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #307</name>
-      <pv_name>$(P)$(R)GC_StatFrameUnderrun_RBV</pv_name>
-      <x>184</x>
-      <y>106</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #311</name>
-      <text>Temperature</text>
-      <x>70</x>
-      <y>255</y>
-      <width>110</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #314</name>
-      <pv_name>$(P)$(R)TemperatureActual</pv_name>
-      <x>184</x>
-      <y>256</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #318</name>
-      <text>Packets received</text>
-      <x>20</x>
-      <y>130</y>
-      <width>160</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #321</name>
-      <pv_name>$(P)$(R)GC_StatPacketReceived_RBV</pv_name>
-      <x>184</x>
-      <y>131</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #325</name>
-      <text>Packets missed</text>
-      <x>40</x>
-      <y>155</y>
-      <width>140</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #328</name>
-      <pv_name>$(P)$(R)GC_StatPacketMissed_RBV</pv_name>
-      <x>184</x>
-      <y>156</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #332</name>
-      <text>Packet errors</text>
-      <x>50</x>
-      <y>180</y>
-      <width>130</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #335</name>
-      <pv_name>$(P)$(R)GC_StatPacketErrors_RBV</pv_name>
-      <x>184</x>
-      <y>181</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #339</name>
-      <text>Packets requested</text>
-      <x>10</x>
-      <y>205</y>
-      <width>170</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #342</name>
-      <pv_name>$(P)$(R)GC_StatPacketRequested_RBV</pv_name>
-      <x>184</x>
-      <y>206</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #346</name>
-      <text>Packets resent</text>
-      <x>40</x>
-      <y>230</y>
-      <width>140</width>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>text update #349</name>
-      <pv_name>$(P)$(R)GC_StatPacketResent_RBV</pv_name>
-      <x>184</x>
-      <y>231</y>
-      <width>120</width>
-      <height>18</height>
-      <font>
-        <font family="Liberation Sans" style="REGULAR" size="16.0">
-        </font>
-      </font>
-      <foreground_color>
-        <color red="10" green="0" blue="184">
-        </color>
-      </foreground_color>
-      <background_color>
-        <color red="187" green="187" blue="187">
-        </color>
-      </background_color>
-      <format>1</format>
-      <show_units>false</show_units>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
-    </widget>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="group" version="2.0.0">
-    <name>composite #353</name>
+    <name>composite #288</name>
     <x>365</x>
     <y>335</y>
     <width>320</width>
@@ -1700,7 +1388,7 @@
     <style>3</style>
     <transparent>true</transparent>
     <widget type="label" version="2.0.0">
-      <name>text #356</name>
+      <name>text #291</name>
       <text># Images</text>
       <x>90</x>
       <width>80</width>
@@ -1711,7 +1399,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="textentry" version="3.0.0">
-      <name>text entry #359</name>
+      <name>text entry #294</name>
       <pv_name>$(P)$(R)NumImages</pv_name>
       <x>175</x>
       <width>60</width>
@@ -1728,7 +1416,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #363</name>
+      <name>text update #298</name>
       <pv_name>$(P)$(R)NumImages_RBV</pv_name>
       <x>240</x>
       <y>1</y>
@@ -1751,7 +1439,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #367</name>
+      <name>text update #302</name>
       <pv_name>$(P)$(R)NumImagesCounter_RBV</pv_name>
       <x>240</x>
       <y>26</y>
@@ -1774,7 +1462,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #371</name>
+      <name>text #306</name>
       <text># Images complete</text>
       <y>25</y>
       <width>170</width>
@@ -1786,7 +1474,7 @@
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
-    <name>composite #374</name>
+    <name>composite #309</name>
     <x>365</x>
     <y>385</y>
     <width>340</width>
@@ -1794,7 +1482,7 @@
     <style>3</style>
     <transparent>true</transparent>
     <widget type="label" version="2.0.0">
-      <name>text #377</name>
+      <name>text #312</name>
       <text>Image mode</text>
       <x>20</x>
       <font>
@@ -1804,7 +1492,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="combo" version="2.0.0">
-      <name>menu #380</name>
+      <name>menu #315</name>
       <pv_name>$(P)$(R)ImageMode</pv_name>
       <x>125</x>
       <width>120</width>
@@ -1816,7 +1504,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #383</name>
+      <name>text update #318</name>
       <pv_name>$(P)$(R)ImageMode_RBV</pv_name>
       <x>250</x>
       <y>2</y>
@@ -1839,7 +1527,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="textentry" version="3.0.0">
-      <name>text entry #387</name>
+      <name>text entry #322</name>
       <pv_name>$(P)$(R)ArrayCounter</pv_name>
       <x>175</x>
       <y>195</y>
@@ -1857,7 +1545,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #391</name>
+      <name>text #326</name>
       <text>Image counter</text>
       <x>40</x>
       <y>195</y>
@@ -1869,7 +1557,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #394</name>
+      <name>text update #329</name>
       <pv_name>$(P)$(R)ArrayCounter_RBV</pv_name>
       <x>240</x>
       <y>196</y>
@@ -1892,7 +1580,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #398</name>
+      <name>text #333</name>
       <text>Image rate</text>
       <x>70</x>
       <y>220</y>
@@ -1903,7 +1591,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #401</name>
+      <name>text update #336</name>
       <pv_name>$(P)$(R)ArrayRate_RBV</pv_name>
       <x>175</x>
       <y>221</y>
@@ -1925,7 +1613,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #405</name>
+      <name>text #340</name>
       <text>Array callbacks</text>
       <y>245</y>
       <width>150</width>
@@ -1936,7 +1624,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="combo" version="2.0.0">
-      <name>menu #408</name>
+      <name>menu #343</name>
       <pv_name>$(P)$(R)ArrayCallbacks</pv_name>
       <x>155</x>
       <y>245</y>
@@ -1949,7 +1637,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #411</name>
+      <name>text update #346</name>
       <pv_name>$(P)$(R)ArrayCallbacks_RBV</pv_name>
       <x>250</x>
       <y>247</y>
@@ -1972,7 +1660,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #415</name>
+      <name>text #350</name>
       <text>Status</text>
       <y>170</y>
       <width>60</width>
@@ -1983,7 +1671,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #418</name>
+      <name>text #353</name>
       <text>Done</text>
       <x>218</x>
       <y>25</y>
@@ -2007,7 +1695,7 @@
       </rules>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #422</name>
+      <name>text #357</name>
       <text>Collecting</text>
       <x>189</x>
       <y>25</y>
@@ -2030,7 +1718,7 @@
       </rules>
     </widget>
     <widget type="action_button" version="3.0.0">
-      <name>message button #426</name>
+      <name>message button #361</name>
       <actions>
         <action type="write_pv">
           <pv_name>$(P)$(R)Acquire</pv_name>
@@ -2050,7 +1738,7 @@
       </background_color>
     </widget>
     <widget type="action_button" version="3.0.0">
-      <name>message button #429</name>
+      <name>message button #364</name>
       <actions>
         <action type="write_pv">
           <pv_name>$(P)$(R)Acquire</pv_name>
@@ -2070,7 +1758,7 @@
       </background_color>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #432</name>
+      <name>text #367</name>
       <text>Acquire</text>
       <x>100</x>
       <y>45</y>
@@ -2082,7 +1770,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #435</name>
+      <name>text #370</name>
       <text>Detector state</text>
       <x>30</x>
       <y>145</y>
@@ -2094,7 +1782,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #438</name>
+      <name>text update #373</name>
       <pv_name>$(P)$(R)DetectorState_RBV</pv_name>
       <x>175</x>
       <y>145</y>
@@ -2116,7 +1804,7 @@
       <show_units>false</show_units>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #442</name>
+      <name>text update #377</name>
       <pv_name>$(P)$(R)StatusMessage_RBV</pv_name>
       <x>65</x>
       <y>170</y>
@@ -2139,7 +1827,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #446</name>
+      <name>text #381</name>
       <text># Queued arrays</text>
       <x>20</x>
       <y>70</y>
@@ -2151,7 +1839,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #449</name>
+      <name>text update #384</name>
       <pv_name>$(P)$(R)NumQueuedArrays</pv_name>
       <x>175</x>
       <y>71</y>
@@ -2175,7 +1863,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #453</name>
+      <name>text #388</name>
       <text>Wait for plugins</text>
       <x>10</x>
       <y>95</y>
@@ -2187,7 +1875,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="combo" version="2.0.0">
-      <name>menu #456</name>
+      <name>menu #391</name>
       <pv_name>$(P)$(R)WaitForPlugins</pv_name>
       <x>175</x>
       <y>95</y>
@@ -2200,7 +1888,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #459</name>
+      <name>text #394</name>
       <text>Acquire busy</text>
       <x>50</x>
       <y>120</y>
@@ -2212,7 +1900,7 @@
       <horizontal_alignment>2</horizontal_alignment>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #462</name>
+      <name>text update #397</name>
       <pv_name>$(P)$(R)AcquireBusy</pv_name>
       <x>175</x>
       <y>121</y>
@@ -2232,6 +1920,317 @@
       </background_color>
       <format>6</format>
       <show_units>false</show_units>
+    </widget>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #401</name>
+    <text>Frames delivered</text>
+    <x>735</x>
+    <y>65</y>
+    <width>160</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #404</name>
+    <pv_name>$(P)$(R)GC_StatFrameDelivered_RBV</pv_name>
+    <x>899</x>
+    <y>66</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #408</name>
+    <text>Frames dropped</text>
+    <x>755</x>
+    <y>90</y>
+    <width>140</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #411</name>
+    <pv_name>$(P)$(R)GC_StatFrameDropped_RBV</pv_name>
+    <x>899</x>
+    <y>91</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #415</name>
+    <text>Frame underuns</text>
+    <x>755</x>
+    <y>115</y>
+    <width>140</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #418</name>
+    <pv_name>$(P)$(R)GC_StatFrameUnderrun_RBV</pv_name>
+    <x>899</x>
+    <y>116</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #422</name>
+    <text>Packets received</text>
+    <x>735</x>
+    <y>140</y>
+    <width>160</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #425</name>
+    <pv_name>$(P)$(R)GC_StatPacketReceived_RBV</pv_name>
+    <x>899</x>
+    <y>141</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #429</name>
+    <text>Packets missed</text>
+    <x>755</x>
+    <y>165</y>
+    <width>140</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #432</name>
+    <pv_name>$(P)$(R)GC_StatPacketMissed_RBV</pv_name>
+    <x>899</x>
+    <y>166</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #436</name>
+    <text>Packet errors</text>
+    <x>765</x>
+    <y>190</y>
+    <width>130</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #439</name>
+    <pv_name>$(P)$(R)GC_StatPacketErrors_RBV</pv_name>
+    <x>899</x>
+    <y>191</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #443</name>
+    <text>Packets requested</text>
+    <x>725</x>
+    <y>215</y>
+    <width>170</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #446</name>
+    <pv_name>$(P)$(R)GC_StatPacketRequested_RBV</pv_name>
+    <x>899</x>
+    <y>216</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #450</name>
+    <text>Packets resent</text>
+    <x>755</x>
+    <y>240</y>
+    <width>140</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #453</name>
+    <pv_name>$(P)$(R)GC_StatPacketResent_RBV</pv_name>
+    <x>899</x>
+    <y>241</y>
+    <width>120</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #457</name>
+    <x>765</x>
+    <y>265</y>
+    <width>215</width>
+    <height>20</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="label" version="2.0.0">
+      <name>text #460</name>
+      <text>Poll features</text>
+      <width>130</width>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <horizontal_alignment>2</horizontal_alignment>
+    </widget>
+    <widget type="combo" version="2.0.0">
+      <name>menu #463</name>
+      <pv_name>$(P)$(R)ReadStatus.SCAN</pv_name>
+      <x>135</x>
+      <width>80</width>
+      <height>20</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
   </widget>
 </display>

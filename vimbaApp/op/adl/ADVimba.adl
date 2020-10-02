@@ -1,6 +1,6 @@
 
 file {
-	name="/home/epics/devel/areaDetector-3-7/ADVimba/vimbaApp/op/adl/ADVimba.adl"
+	name="/home/epics/devel/areaDetector-3-10/ADVimba/vimbaApp/op/adl/ADVimba.adl"
 	version=030109
 }
 display {
@@ -1186,329 +1186,68 @@ composite {
 		}
 	}
 }
-composite {
+rectangle {
+	object {
+		x=837
+		y=37
+		width=107
+		height=21
+	}
+	"basic attribute" {
+		clr=2
+	}
+}
+text {
+	object {
+		x=860
+		y=38
+		width=60
+		height=20
+	}
+	"basic attribute" {
+		clr=54
+	}
+	textix="Status"
+	align="horiz. centered"
+}
+rectangle {
 	object {
 		x=715
 		y=35
 		width=350
 		height=280
 	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=837
-				y=37
-				width=107
-				height=21
-			}
-			"basic attribute" {
-				clr=2
-			}
-		}
-		text {
-			object {
-				x=860
-				y=38
-				width=60
-				height=20
-			}
-			"basic attribute" {
-				clr=54
-			}
-			textix="Status"
-			align="horiz. centered"
-		}
-		rectangle {
-			object {
-				x=715
-				y=35
-				width=350
-				height=280
-			}
-			"basic attribute" {
-				clr=14
-				fill="outline"
-			}
-		}
-		menu {
-			object {
-				x=900
-				y=65
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)$(R)ReadStatus.SCAN"
-				clr=14
-				bclr=51
-			}
-		}
-		text {
-			object {
-				x=785
-				y=65
-				width=110
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Status rate"
-			align="horiz. right"
-		}
-		text {
-			object {
-				x=735
-				y=90
-				width=160
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Frames delivered"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=91
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatFrameDelivered_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=755
-				y=115
-				width=140
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Frames dropped"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=116
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatFrameDropped_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=755
-				y=140
-				width=140
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Frame underuns"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=141
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatFrameUnderrun_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=785
-				y=290
-				width=110
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Temperature"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=291
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)TemperatureActual"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=735
-				y=165
-				width=160
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Packets received"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=166
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatPacketReceived_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=755
-				y=190
-				width=140
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Packets missed"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=191
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatPacketMissed_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=765
-				y=215
-				width=130
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Packet errors"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=216
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatPacketErrors_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=725
-				y=240
-				width=170
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Packets requested"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=241
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatPacketRequested_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=755
-				y=265
-				width=140
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Packets resent"
-			align="horiz. right"
-		}
-		"text update" {
-			object {
-				x=899
-				y=266
-				width=120
-				height=18
-			}
-			monitor {
-				chan="$(P)$(R)GC_StatPacketResent_RBV"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+text {
+	object {
+		x=785
+		y=290
+		width=110
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Temperature"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=291
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)TemperatureActual"
+		clr=54
+		bclr=4
+	}
+	limits {
 	}
 }
 composite {
@@ -1978,6 +1717,267 @@ composite {
 			clrmod="alarm"
 			format="string"
 			limits {
+			}
+		}
+	}
+}
+text {
+	object {
+		x=735
+		y=65
+		width=160
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Frames delivered"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=66
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatFrameDelivered_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=755
+		y=90
+		width=140
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Frames dropped"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=91
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatFrameDropped_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=755
+		y=115
+		width=140
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Frame underuns"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=116
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatFrameUnderrun_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=735
+		y=140
+		width=160
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Packets received"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=141
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatPacketReceived_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=755
+		y=165
+		width=140
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Packets missed"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=166
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatPacketMissed_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=765
+		y=190
+		width=130
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Packet errors"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=191
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatPacketErrors_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=725
+		y=215
+		width=170
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Packets requested"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=216
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatPacketRequested_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=755
+		y=240
+		width=140
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Packets resent"
+	align="horiz. right"
+}
+"text update" {
+	object {
+		x=899
+		y=241
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(R)GC_StatPacketResent_RBV"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+composite {
+	object {
+		x=765
+		y=265
+		width=215
+		height=20
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=765
+				y=265
+				width=130
+				height=20
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Poll features"
+			align="horiz. right"
+		}
+		menu {
+			object {
+				x=900
+				y=265
+				width=80
+				height=20
+			}
+			control {
+				chan="$(P)$(R)ReadStatus.SCAN"
+				clr=14
+				bclr=51
 			}
 		}
 	}
