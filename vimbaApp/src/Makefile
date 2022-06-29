@@ -25,6 +25,9 @@ PROD_LIBS_WIN32 += VimbaCPP VimbaC VimbaImageTransform
 
 DBD += ADVimbaSupport.dbd
 
+# Note: To run the ListCameras application on Linux the following environment variable must be defined:
+# GENICAM_GENTL64_PATH = $(ADVIMBA)/bin/$(ARCH)
+# where $(ADVIMBA) is the path to ADVimba and $(ARCH) is the EPICS arch, for example linux-x86_64.
 PROD_IOC_Linux += ListCameras
 PROD_IOC_WIN32 += ListCameras
 ListCameras_SRCS += ListCamerasMain.cpp ListCameras.cpp
