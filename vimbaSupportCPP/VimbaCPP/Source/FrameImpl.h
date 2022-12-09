@@ -36,7 +36,7 @@ namespace VmbAPI {
 struct Frame::Impl
 {
     VmbUchar_t          *m_pBuffer;
-    bool                m_bIsUserBuffer;
+    bool                m_bIsSelfAllocatedBuffer;
 
     VmbFrame_t          m_frame;
 

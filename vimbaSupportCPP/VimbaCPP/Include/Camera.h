@@ -340,23 +340,25 @@ class Camera : public FeatureContainer, public IRegisterDevice
     //
     // Purpose:     Gets one image synchronously.
     //
-    // Parameters:  [out]   FramePtr&       pFrame          The frame that gets filled
-    //              [in ]   VmbUint32_t     timeout         The time to wait until the frame got filled
+    // Parameters:  [out]   FramePtr&              pFrame          The frame that gets filled
+    //              [in ]   VmbUint32_t            timeout         The time to wait until the frame got filled
+    //              [in ]   FrameAllocationMode    allocationMode  The frame allocation mode
     //
     // Returns:
     //  - VmbErrorSuccess:      If no error
     //  - VmbErrorBadParameter: "pFrame" is NULL.
     //  - VmbErrorTimeout:      Call timed out
     //
-    IMEXPORT VmbErrorType AcquireSingleImage( FramePtr &pFrame, VmbUint32_t timeout );
+    IMEXPORT VmbErrorType AcquireSingleImage( FramePtr &pFrame, VmbUint32_t timeout, FrameAllocationMode allocationMode = FrameAllocation_AnnounceFrame );
 
     //
     // Method:      AcquireMultipleImages()
     //
     // Purpose:     Gets a certain number of images synchronously.
     //
-    // Parameters:  [out]   FramePtrVector& frames          The frames that get filled
-    //              [in ]   VmbUint32_t     timeout         The time to wait until one frame got filled
+    // Parameters:  [out]   FramePtrVector&        frames          The frames that get filled
+    //              [in ]   VmbUint32_t            timeout         The time to wait until one frame got filled
+    //              [in ]   FrameAllocationMode    allocationMode  The frame allocation mode
     //
     // Details:     The size of the frame vector determines the number of frames to use.
     //
@@ -365,16 +367,17 @@ class Camera : public FeatureContainer, public IRegisterDevice
     //  - VmbErrorInternalFault:    Filling all the frames was not successful.
     //  - VmbErrorBadParameter:     Vector "frames" is empty.
     //
-    VmbErrorType AcquireMultipleImages( FramePtrVector &frames, VmbUint32_t timeout );
+    VmbErrorType AcquireMultipleImages( FramePtrVector &frames, VmbUint32_t timeout, FrameAllocationMode allocationMode = FrameAllocation_AnnounceFrame );
 
     //
     // Method:      AcquireMultipleImages()
     //
     // Purpose:     Same as AcquireMultipleImages(FramePtrVector&, VmbUint32_t), but returns the number of frames that were filled completely.
     //
-    // Parameters:  [out]   FramePtrVector& frames              The frames that get filled
-    //              [in ]   VmbUint32_t     timeout             The time to wait until one frame got filled
-    //              [out]   VmbUint32_t&    numFramesCompleted  The number of frames that were filled completely
+    // Parameters:  [out]   FramePtrVector&        frames              The frames that get filled
+    //              [in ]   VmbUint32_t            timeout             The time to wait until one frame got filled
+    //              [out]   VmbUint32_t&           numFramesCompleted  The number of frames that were filled completely
+    //              [in ]   FrameAllocationMode    allocationMode      The frame allocation mode
     //
     // Details:     The size of the frame vector determines the number of frames to use.
     //              On return, "numFramesCompleted" holds the number of frames actually filled.
@@ -383,7 +386,7 @@ class Camera : public FeatureContainer, public IRegisterDevice
     //  - VmbErrorSuccess:      If no error
     //  - VmbErrorBadParameter: Vector "frames" is empty.
     //
-    VmbErrorType AcquireMultipleImages( FramePtrVector &frames, VmbUint32_t timeout, VmbUint32_t &numFramesCompleted );
+    VmbErrorType AcquireMultipleImages( FramePtrVector &frames, VmbUint32_t timeout, VmbUint32_t &numFramesCompleted, FrameAllocationMode allocationMode = FrameAllocation_AnnounceFrame );
 
     //
     // Method:      StartContinuousImageAcquisition()
@@ -392,6 +395,7 @@ class Camera : public FeatureContainer, public IRegisterDevice
     //
     // Parameters:  [in ]   int                         bufferCount    The number of frames to use
     //              [out]   const IFrameObserverPtr&    pObserver      The observer to use on arrival of new frames
+    //              [in]    FrameAllocationMode         allocationMode The frame allocation mode
     //
     // Returns:
     //
@@ -401,7 +405,7 @@ class Camera : public FeatureContainer, public IRegisterDevice
     //  - VmbErrorBadHandle:      The given handle is not valid
     //  - VmbErrorInvalidAccess:  Operation is invalid with the current access mode
     //
-    IMEXPORT VmbErrorType StartContinuousImageAcquisition( int bufferCount, const IFrameObserverPtr &pObserver );
+    IMEXPORT VmbErrorType StartContinuousImageAcquisition( int bufferCount, const IFrameObserverPtr &pObserver, FrameAllocationMode allocationMode = FrameAllocation_AnnounceFrame );
 
     //
     // Method:      StopContinuousImageAcquisition()
@@ -612,7 +616,7 @@ class Camera : public FeatureContainer, public IRegisterDevice
     IMEXPORT VmbErrorType GetModel( char * const pModelName, VmbUint32_t &length ) const;
     IMEXPORT VmbErrorType GetSerialNumber( char * const pSerial, VmbUint32_t &length ) const;
     IMEXPORT VmbErrorType GetInterfaceID( char * const pInterfaceID, VmbUint32_t &length ) const;
-    IMEXPORT VmbErrorType AcquireMultipleImages( FramePtr *pFrames, VmbUint32_t size, VmbUint32_t nTimeout, VmbUint32_t *pNumFramesCompleted );
+    IMEXPORT VmbErrorType AcquireMultipleImages( FramePtr *pFrames, VmbUint32_t size, VmbUint32_t nTimeout, VmbUint32_t *pNumFramesCompleted, FrameAllocationMode allocationMode );
     IMEXPORT virtual VmbErrorType ReadRegisters( const VmbUint64_t *pAddressArray, VmbUint32_t addressSize, VmbUint64_t *pDataArray, VmbUint32_t *pCompletedReads ) const;
     IMEXPORT virtual VmbErrorType WriteRegisters( const VmbUint64_t *pAddressArray, VmbUint32_t addressSize, const VmbUint64_t *pDataArray, VmbUint32_t *pCompletedWrites );
     IMEXPORT virtual VmbErrorType ReadMemory( VmbUint64_t address, VmbUchar_t *pBuffer, VmbUint32_t bufferSize, VmbUint32_t *pSizeComplete ) const;

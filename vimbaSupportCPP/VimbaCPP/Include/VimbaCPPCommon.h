@@ -58,6 +58,15 @@ enum UpdateTriggerType
     UpdateTriggerOpenStateChanged    = 3            // The possible opening mode of a camera has changed (e.g., because it was opened by another application)
 };
 
+//
+// Indicate the frame allocation mode.
+//
+enum FrameAllocationMode
+{
+    FrameAllocation_AnnounceFrame                 = 0,   // Use announce frame mode
+    FrameAllocation_AllocAndAnnounceFrame         = 1    // Use alloc and announce mode
+};
+
 typedef std::vector<VmbUint64_t>    Uint64Vector;
 typedef std::vector<VmbInt64_t>     Int64Vector;
 typedef std::vector<VmbUchar_t>     UcharVector;

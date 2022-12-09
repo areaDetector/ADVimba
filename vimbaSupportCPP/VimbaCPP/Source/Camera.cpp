@@ -135,7 +135,7 @@ private:
     // [in,out] pFrame         a frame pointer that can point to Null
     // [in]     payload_size   payload size for frame
     //
-    static VmbErrorType SetupFrame(FramePtr &pFrame, VmbInt64_t PayloadSize)
+    static VmbErrorType SetupFrame(FramePtr &pFrame, VmbInt64_t PayloadSize, FrameAllocationMode allocationMode)
     {
         if( PayloadSize <= 0)
         {
@@ -159,7 +159,7 @@ private:
         }
         try
         {
-            SP_SET( pFrame, new Frame( PayloadSize));
+            SP_SET( pFrame, new Frame( PayloadSize, allocationMode ));
             if( SP_ISNULL( pFrame) ) // in case we find a not throwing new
             {
                 LOG_FREE_TEXT("error allocating frame");
@@ -195,18 +195,19 @@ public:
     // [in]        nFrameCount         number of frame pointers in pFrames
     // [in]        nPayloadSize        payload size for one frame
     // [out]       nFramesAnnounced    returns number of successful announced frames
+    // [in]        allocationMode      frame allocation mode
     // Returns:
     //
     // the first error that occurred or VmbErrorSuccess if non occurred 
     // Details: note the function will try to construct and announce nFrameCount frames t o the camera, even if some of them can not be created or announced, only if nFramesAnnounced == 0 the function was unsuccessful
     //
-    static VmbErrorType AnnounceFrames(Camera &Camera, FramePtr *pFrames, VmbUint32_t nFrameCount, VmbInt64_t nPayloadSize, VmbUint32_t &nFramesAnnounced)
+    static VmbErrorType AnnounceFrames(Camera &Camera, FramePtr *pFrames, VmbUint32_t nFrameCount, VmbInt64_t nPayloadSize, VmbUint32_t &nFramesAnnounced, FrameAllocationMode allocationMode)
     {
         VmbErrorType    Result  = VmbErrorSuccess;
         nFramesAnnounced        = 0;
         for( VmbUint32_t FrameNumber= 0; FrameNumber < nFrameCount; ++FrameNumber)
         {
-            VmbErrorType LocalResult = SetupFrame( pFrames[ FrameNumber ], nPayloadSize);         //< try to init frame
+            VmbErrorType LocalResult = SetupFrame( pFrames[ FrameNumber ], nPayloadSize, allocationMode );         //< try to init frame
             if( VmbErrorSuccess == LocalResult)
             {
                 LocalResult = Camera.AnnounceFrame( pFrames[ FrameNumber] );       //< announce frame if successful initialized
@@ -239,8 +240,9 @@ public:
     // [in]        nBufferCount    number of frames to announce, if nBufferCount > Frames.size() on return, some frames could not be announced
     // [in]        nPayloadSize    frame payload size
     // [in]        Observer        observer to attach to frames
+    // [in]        allocationMode  frame allocation mode
     //
-    static VmbErrorType AnnounceFrames(Camera &Camera, FramePtrVector &Frames, VmbUint32_t nBufferCount, VmbInt64_t nPayloadSize, const IFrameObserverPtr& Observer)
+    static VmbErrorType AnnounceFrames(Camera &Camera, FramePtrVector &Frames, VmbUint32_t nBufferCount, VmbInt64_t nPayloadSize, const IFrameObserverPtr& Observer, FrameAllocationMode allocationMode)
     {
         try
         {
@@ -255,13 +257,13 @@ public:
         for( VmbUint32_t i=0; i < nBufferCount; ++i)
         {
             FramePtr tmpFrame;
-            VmbErrorType LocalResult = SetupFrame( tmpFrame, nPayloadSize );
+            VmbErrorType LocalResult = SetupFrame( tmpFrame, nPayloadSize, allocationMode );
             if( ! SP_ISNULL( tmpFrame) )
             {
                 LocalResult = SP_ACCESS( tmpFrame)->RegisterObserver( Observer );
                 if( VmbErrorSuccess == LocalResult )
                 {
-                    LocalResult = Camera.AnnounceFrame( tmpFrame);
+                    LocalResult = Camera.AnnounceFrame( tmpFrame );
                     if( VmbErrorSuccess == LocalResult )
                     {
                         Frames.push_back( tmpFrame );
@@ -296,11 +298,12 @@ public:
     //
     // [in,out]    pFrame          frame to hold the image
     // [in]        PayloadSize     frame payload size
+    // [in]        allocationMode  frame allocation mode
     //
-    VmbErrorType Prepare(FramePtr &pFrame, VmbInt64_t PayloadSize)
+    VmbErrorType Prepare(FramePtr &pFrame, VmbInt64_t PayloadSize, FrameAllocationMode allocationMode)
     {
         VmbErrorType res;
-        res = SetupFrame( pFrame, PayloadSize);                     // init frame if necessary
+        res = SetupFrame( pFrame, PayloadSize, allocationMode );     // init frame if necessary
         if ( VmbErrorSuccess != res )
         {
             LOG_FREE_TEXT("Could not create frame");
@@ -349,8 +352,9 @@ public:
     // [in]         nFrameCount     number of frames in vector
     // [in]         nPayLoadSize    payload size
     // [out]        nFramesQueued   returns number of successful queued images
+    // [in]         allocationMode  frame allocation mode
     //
-    VmbErrorType Prepare(FramePtr *pFrames, VmbUint32_t nFrameCount, VmbInt64_t nPayloadSize, VmbUint32_t &nFramesQueued )
+    VmbErrorType Prepare(FramePtr *pFrames, VmbUint32_t nFrameCount, VmbInt64_t nPayloadSize, VmbUint32_t &nFramesQueued, FrameAllocationMode allocationMode )
     {
         if( NULL == pFrames || 0 == nFrameCount)                            // sanity check
         {
@@ -359,7 +363,7 @@ public:
         nFramesQueued = 0;
         VmbErrorType    Result          = VmbErrorSuccess;
         VmbUint32_t     FramesAnnounced = 0;
-        Result = AnnounceFrames( m_Camera, pFrames, nFrameCount, nPayloadSize, FramesAnnounced);
+        Result = AnnounceFrames( m_Camera, pFrames, nFrameCount, nPayloadSize, FramesAnnounced, allocationMode );
         if( 0 == FramesAnnounced)
         {
             return Result;
@@ -751,7 +755,7 @@ VmbErrorType Camera::WriteMemory( const VmbUint64_t address, const VmbUchar_t *p
 }
 
 //Get one image synchronously.
-VmbErrorType Camera::AcquireSingleImage( FramePtr &rFrame, VmbUint32_t nTimeout )
+VmbErrorType Camera::AcquireSingleImage( FramePtr &rFrame, VmbUint32_t nTimeout , FrameAllocationMode allocationMode)
 {
     VmbErrorType    res;
     VmbInt64_t      PayloadSize;
@@ -761,7 +765,7 @@ VmbErrorType Camera::AcquireSingleImage( FramePtr &rFrame, VmbUint32_t nTimeout 
     if ( VmbErrorSuccess == res )
     {
         AcquireImageHelper AcquireHelper( *this );
-        res = AcquireHelper.Prepare( rFrame, PayloadSize );
+        res = AcquireHelper.Prepare( rFrame, PayloadSize, allocationMode );
         if ( VmbErrorSuccess == res )
         {
             res = (VmbErrorType)VmbCaptureFrameWait( GetHandle(), &(SP_ACCESS( rFrame )->m_pImpl->m_frame), nTimeout );
@@ -792,7 +796,7 @@ VmbErrorType Camera::AcquireSingleImage( FramePtr &rFrame, VmbUint32_t nTimeout 
     return res;
 }
 
-VmbErrorType Camera::AcquireMultipleImages( FramePtr *pFrames, VmbUint32_t nSize, VmbUint32_t nTimeout, VmbUint32_t *pNumFramesCompleted )
+VmbErrorType Camera::AcquireMultipleImages( FramePtr *pFrames, VmbUint32_t nSize, VmbUint32_t nTimeout, VmbUint32_t *pNumFramesCompleted, FrameAllocationMode allocationMode )
 {
     VmbErrorType res = VmbErrorBadParameter;
 
@@ -815,7 +819,7 @@ VmbErrorType Camera::AcquireMultipleImages( FramePtr *pFrames, VmbUint32_t nSize
     {
         AcquireImageHelper AquireHelper( *this );
         VmbUint32_t nFramesQueued = 0;
-        res = AquireHelper.Prepare( pFrames, nSize, nPayloadSize, nFramesQueued);
+        res = AquireHelper.Prepare( pFrames, nSize, nPayloadSize, nFramesQueued, allocationMode);
 
         if ( VmbErrorSuccess == res )
         {
@@ -853,7 +857,7 @@ VmbErrorType Camera::AcquireMultipleImages( FramePtr *pFrames, VmbUint32_t nSize
     return res;
 }
 
-VmbErrorType Camera::StartContinuousImageAcquisition( int nBufferCount, const IFrameObserverPtr &rObserver )
+VmbErrorType Camera::StartContinuousImageAcquisition( int nBufferCount, const IFrameObserverPtr &rObserver, FrameAllocationMode allocationMode /*=FrameAllocation_AnnounceFrame*/)
 {
     VmbErrorType        res;
     FramePtrVector      Frames;
@@ -862,7 +866,7 @@ VmbErrorType Camera::StartContinuousImageAcquisition( int nBufferCount, const IF
     res = GetFeatureValueInt(*this,"PayloadSize", nPayloadSize );
     if ( VmbErrorSuccess == res )
     {
-        res = AcquireImageHelper::AnnounceFrames( *this, Frames, nBufferCount, nPayloadSize, rObserver );
+        res = AcquireImageHelper::AnnounceFrames( *this, Frames, nBufferCount, nPayloadSize, rObserver, allocationMode );
         if( Frames.empty() )
         {
             return res;
@@ -873,7 +877,7 @@ VmbErrorType Camera::StartContinuousImageAcquisition( int nBufferCount, const IF
             VmbUint32_t FramesQueued = 0;
             for (   size_t FrameNumber = 0; FrameNumber < Frames.size(); ++ FrameNumber )
             {
-                VmbErrorType LocalResult =  QueueFrame( Frames[ FrameNumber] );
+                VmbErrorType LocalResult =  QueueFrame( Frames[ FrameNumber ] );
                 if ( VmbErrorSuccess == LocalResult)
                 {
                     ++FramesQueued;
@@ -981,13 +985,21 @@ VmbErrorType Camera::AnnounceFrame( const FramePtr &frame )
     }
 
     VmbError_t res = VmbFrameAnnounce( GetHandle(), &(SP_ACCESS( frame )->m_pImpl->m_frame), sizeof SP_ACCESS( frame )->m_pImpl->m_frame );
-    
-    if ( VmbErrorSuccess == res )
+
+	if ( VmbErrorSuccess == res )
     {
-        // Begin write lock frame handler list
+		// Begin write lock frame handler list
         if ( true == m_pImpl->m_conditionHelper.EnterWriteLock( m_pImpl->m_frameHandlers ))
         {
+            // If we are using AllocAndAnnounce the incoming buffer ptr is NULL. VmbFrameAnnounce can only set frame->m_pImpl->m_frame.buffer but not m_pImpl->m_pBuffer.
+            // Therefore we need to set m_pBuffer here.
+            if (SP_ACCESS( frame )->m_pImpl->m_pBuffer == NULL)
+            {
+                SP_ACCESS( frame )->m_pImpl->m_pBuffer = (VmbUchar_t *)SP_ACCESS( frame )->m_pImpl->m_frame.buffer;
+            }
+
             res = m_pImpl->AppendFrameToVector( frame ) ;
+
             if( VmbErrorSuccess == res )
             {
                 SP_ACCESS( frame )->m_pImpl->m_bAlreadyAnnounced = true;
