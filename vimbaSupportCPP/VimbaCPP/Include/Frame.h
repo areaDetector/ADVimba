@@ -50,9 +50,10 @@ class Frame
     //
     // Purpose:     Creates an instance of class Frame of a certain size
     //
-    // Parameters:  [in ]   VmbInt64_t      bufferSize  The size of the underlying buffer
+    // Parameters:  [in ]   VmbInt64_t              bufferSize      The size of the underlying buffer
+	// Parameters:  [in ]   FrameAllocationMode     allocationMode  Indicates if announce frame or alloc and announce frame is used
     //
-    IMEXPORT explicit Frame( VmbInt64_t bufferSize );
+    IMEXPORT explicit Frame( VmbInt64_t bufferSize, FrameAllocationMode allocationMode = FrameAllocation_AnnounceFrame );
 
     //
     // Method:      Frame constructor

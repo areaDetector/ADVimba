@@ -52,15 +52,15 @@ Frame& Frame::operator=( const Frame& )
     return *this;
 }
 
-Frame::Frame( VmbInt64_t nBufferSize )
+Frame::Frame( VmbInt64_t nBufferSize, FrameAllocationMode allocationMode /*=FrameAllocation_AnnounceFrame*/ )
     :   m_pImpl( new Impl() )
 {
     m_pImpl->m_bAlreadyAnnounced = false;
     m_pImpl->m_bAlreadyQueued = false;
-    m_pImpl->m_bIsUserBuffer = false;
+    m_pImpl->m_bIsSelfAllocatedBuffer = (allocationMode == FrameAllocation_AnnounceFrame) ? true : false;
     SP_SET( m_pImpl->m_pObserverMutex, new Mutex() );
     m_pImpl->Init();
-    m_pImpl->m_pBuffer = new VmbUchar_t[ (VmbUint32_t)nBufferSize ];
+    m_pImpl->m_pBuffer = (allocationMode == FrameAllocation_AnnounceFrame) ? new VmbUchar_t[ (VmbUint32_t)nBufferSize ] : NULL;
     m_pImpl->m_frame.bufferSize = (VmbUint32_t)nBufferSize;
     m_pImpl->m_frame.buffer = m_pImpl->m_pBuffer;
 }
@@ -70,7 +70,7 @@ Frame::Frame( VmbUchar_t *pBuffer, VmbInt64_t nBufferSize )
 {
     m_pImpl->m_bAlreadyAnnounced = false;
     m_pImpl->m_bAlreadyQueued = false;
-    m_pImpl->m_bIsUserBuffer = true;
+    m_pImpl->m_bIsSelfAllocatedBuffer = false;
     m_pImpl->m_pBuffer = NULL;
     SP_SET( m_pImpl->m_pObserverMutex, new Mutex());
     m_pImpl->Init();
@@ -111,7 +111,7 @@ void Frame::Impl::Init()
 Frame::~Frame()
 {
     UnregisterObserver();
-    if (    false == m_pImpl->m_bIsUserBuffer
+    if (    true == m_pImpl->m_bIsSelfAllocatedBuffer
          && NULL != m_pImpl->m_pBuffer )
     {
         delete [] m_pImpl->m_pBuffer;
