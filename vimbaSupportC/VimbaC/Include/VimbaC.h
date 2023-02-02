@@ -1480,6 +1480,9 @@ IMEXPORTC VmbError_t VMB_CALL VmbFeatureInvalidationUnregister ( const VmbHandle
 //
 // Details:     Allows some preparation for frames like DMA preparation depending on the transport layer.
 //              The order in which the frames are announced is not taken into consideration by the API.
+//              The method can be used to annouce a previously allocated frame buffer to the transport layer.
+//              Alternatively, in case "pFrame->buffer" points to NULL, the method will allocate and announce 
+//              a new buffer. In this case "pFrame->buffer" contains the allocated buffer address on return.
 //
 IMEXPORTC VmbError_t VMB_CALL VmbFrameAnnounce ( const VmbHandle_t   cameraHandle,
                                                  const VmbFrame_t*   pFrame,

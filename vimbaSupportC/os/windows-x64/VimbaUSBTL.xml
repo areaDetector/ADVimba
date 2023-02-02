@@ -47,8 +47,7 @@
 	<!--
 			Use manual maximum transfer size (in bytes) for USB transfers
             Decimal and hexadecimal numbers (prefixed with "0x") can be used
-            Default behavior if omitted:    Windows: 262144
-                                            Linux:   32768
+            Default behavior if omitted:    262144
     -->
     <!-- <MaxTransferSize>262144</MaxTransferSize> -->
     
