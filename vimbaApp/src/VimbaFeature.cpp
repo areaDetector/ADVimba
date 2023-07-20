@@ -21,7 +21,7 @@ VimbaFeature::VimbaFeature(GenICamFeatureSet *set,
 {
     static const char *functionName = "VimbaFeature";
     
-    if (VmbErrorSuccess == mCameraPtr->GetFeatureByName(featureName.c_str(), mFeaturePtr)) {
+    if (mCameraPtr && VmbErrorSuccess == mCameraPtr->GetFeatureByName(featureName.c_str(), mFeaturePtr)) {
         mIsImplemented = true;
         VmbFeatureDataType dataType;
         checkError(mFeaturePtr->GetDataType(dataType), "VimbaFeature", "GetDataType");

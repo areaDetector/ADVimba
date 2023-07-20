@@ -152,6 +152,11 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
             "%s:%s:  camera connection failed (%d)\n",
             driverName, functionName, status);
+        // Mark camera unreachable
+        this->deviceIsReachable = false;
+        this->disconnect(pasynUserSelf);
+        setIntegerParam(ADStatus, ADStatusDisconnected);
+        setStringParam(ADStatusMessage, "Camera disconnected");
         // Call report() to get a list of available cameras
         report(stdout, 1);
         return;
