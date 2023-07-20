@@ -15,6 +15,13 @@ files respectively, in the configure/ directory of the appropriate release of th
 
 Release Notes
 =============
+R1-4 (July 20, 2023)
+----
+* Updated the version of the Vimba SDK being used to 6.0.
+  Windows users will need to install Vimba 6.0 to get the correct drivers and DLLs.
+  Linux users do not need to do anything because the 6.0 files are all included in ADVimba.
+* Removed support for 32-bit Linux and Windows.
+
 R1-3 (October 2, 2020)
 ----
 * Updated the version of the Vimba SDK being used to 4.0 (Windows) and 4.1 (Linux).
