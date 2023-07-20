@@ -21,6 +21,7 @@ R1-4 (July 20, 2023)
   Windows users will need to install Vimba 6.0 to get the correct drivers and DLLs.
   Linux users do not need to do anything because the 6.0 files are all included in ADVimba.
 * Removed support for 32-bit Linux and Windows.
+* Added protection against crash if a camera is disconnected.  Thanks to Xiaoqiang Wang for this.
 
 R1-3 (October 2, 2020)
 ----
