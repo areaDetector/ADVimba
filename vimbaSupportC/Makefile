@@ -26,22 +26,25 @@ BIN_INSTALLS    += ../os/win32-x86/VimbaGigETL.xml
 BIN_INSTALLS    += ../os/win32-x86/VimbaUSBTL.cti
 BIN_INSTALLS    += ../os/win32-x86/VimbaUSBTL.xml
 
-else ifeq (linux-x86_64, $(findstring linux-x86_64, $(T_A)))
-LIB_INSTALLS    += ../os/linux-x86_64/libVimbaC.so
-LIB_INSTALLS    += ../os/linux-x86_64/libVimbaImageTransform.so
-BIN_INSTALLS    += ../os/linux-x86_64/VimbaGigETL.cti
-BIN_INSTALLS    += ../os/linux-x86_64/VimbaGigETL.xml
-BIN_INSTALLS    += ../os/linux-x86_64/VimbaUSBTL.cti
-BIN_INSTALLS    += ../os/linux-x86_64/VimbaUSBTL.xml
+else ifeq ($(OS_CLASS), Linux)
+  ifeq ($(ARCH_CLASS), x86_64)
+  LIB_INSTALLS    += ../os/linux-x86_64/libVimbaC.so
+  LIB_INSTALLS    += ../os/linux-x86_64/libVimbaImageTransform.so
+  BIN_INSTALLS    += ../os/linux-x86_64/VimbaGigETL.cti
+  BIN_INSTALLS    += ../os/linux-x86_64/VimbaGigETL.xml
+  BIN_INSTALLS    += ../os/linux-x86_64/VimbaUSBTL.cti
+  BIN_INSTALLS    += ../os/linux-x86_64/VimbaUSBTL.xml
 
-else ifeq (linux-x86, $(findstring linux-x86, $(T_A)))
-LIB_INSTALLS    += ../os/linux-x86/libVimbaC.so
-LIB_INSTALLS    += ../os/linux-x86/libVimbaImageTransform.so
-BIN_INSTALLS    += ../os/linux-x86/VimbaGigETL.cti
-BIN_INSTALLS    += ../os/linux-x86/VimbaGigETL.xml
-BIN_INSTALLS    += ../os/linux-x86/VimbaUSBTL.cti
-BIN_INSTALLS    += ../os/linux-x86/VimbaUSBTL.xml
+  else ifeq ($(ARCH_CLASS), x86)
+  LIB_INSTALLS    += ../os/linux-x86/libVimbaC.so
+  LIB_INSTALLS    += ../os/linux-x86/libVimbaImageTransform.so
+  BIN_INSTALLS    += ../os/linux-x86/VimbaGigETL.cti
+  BIN_INSTALLS    += ../os/linux-x86/VimbaGigETL.xml
+  BIN_INSTALLS    += ../os/linux-x86/VimbaUSBTL.cti
+  BIN_INSTALLS    += ../os/linux-x86/VimbaUSBTL.xml
 
+  endif
+    
 endif
 
 #=============================
