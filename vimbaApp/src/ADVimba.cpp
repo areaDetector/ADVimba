@@ -547,6 +547,11 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
         // Call the NDArray callback
         doCallbacksGenericPointer(pRaw, NDArrayData, 0);
     }
+    if (this->pArrays[0]) {
+        this->pArrays[0]->release();
+    }
+    this->pArrays[0] = pRaw;
+    pRaw = NULL;
 
     done:
 
