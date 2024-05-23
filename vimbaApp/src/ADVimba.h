@@ -17,15 +17,6 @@ using namespace std;
 #define VMBTimeStampModeString       "VMB_TIME_STAMP_MODE"        // asynParamInt32, R/O
 #define VMBUniqueIdModeString        "VMB_UNIQUE_ID_MODE"         // asynParamInt32, R/O
 
-class ADVimbaFrameObserver : virtual public IFrameObserver {
-public:
-    ADVimbaFrameObserver(CameraPtr pCamera, class ADVimba *pVimba);
-    ~ADVimbaFrameObserver();
-    virtual void FrameReceived(const FramePtr pFrame);
-    CameraPtr pCamera_;
-    class ADVimba *pVimba_;  
-};
-
 /** Main driver class inherited from areaDetectors ADGenICam class.
  * One instance of this class will control one camera.
  */
@@ -49,6 +40,7 @@ public:
     void imageGrabTask();
     void shutdown();
     CameraPtr getCamera();
+    void connectionCallback(UpdateTriggerType reason);
     asynStatus processFrame(FramePtr pFrame);
 
 private:

@@ -66,21 +66,40 @@ typedef enum {
     UniqueIdDriver
 } VMBUniqueId_t;
 
+class ADVimbaFrameObserver : public IFrameObserver {
+public:
+    ADVimbaFrameObserver(CameraPtr pCamera, class ADVimba *pVimba)
+        :   IFrameObserver(pCamera),
+            pVimba_(pVimba) {}
+    ~ADVimbaFrameObserver() {};
+    void FrameReceived(const FramePtr pFrame) {
+        pVimba_->processFrame(pFrame);
+    }
+private:
+    class ADVimba *pVimba_;  
+};
 
-ADVimbaFrameObserver::ADVimbaFrameObserver(CameraPtr pCamera, class ADVimba *pVimba) 
-    :   IFrameObserver(pCamera),
-        pCamera_(pCamera), 
-        pVimba_(pVimba)
-{
-}
+class ADVimbaCameraListObserver : public ICameraListObserver {
+public:
+    ADVimbaCameraListObserver(class ADVimba *pVimba)
+        :   ICameraListObserver(),
+            pVimba_(pVimba) {}
+    ~ADVimbaCameraListObserver() {};
+    void CameraListChanged(CameraPtr pCam, UpdateTriggerType reason) {
+        // We got a callback for a camera connect or disconnect event.
+        // If it is for our camera then call the
+        CameraPtr myCamera = pVimba_->getCamera();
+        std::string serial, mySerial;
+        myCamera->GetSerialNumber(mySerial);
+        pCam->GetSerialNumber(serial);
+        if (serial == mySerial) {
+            pVimba_->connectionCallback(reason);
+        }
+    }
+private:
+    class ADVimba *pVimba_;  
+};
 
-ADVimbaFrameObserver::~ADVimbaFrameObserver() 
-{
-}
-  
-void ADVimbaFrameObserver::FrameReceived(const FramePtr pFrame) {
-    pVimba_->processFrame(pFrame);
-}
 
 /** Configuration function to configure one camera.
  *
@@ -124,7 +143,7 @@ static void imageGrabTaskC(void *drvPvt)
  * \param[in] stackSize The size of the stack for the EPICS port thread. 0=use asyn default.
  */
 ADVimba::ADVimba(const char *portName, const char *cameraId,
-                         size_t maxMemory, int priority, int stackSize )
+                 size_t maxMemory, int priority, int stackSize)
     : ADGenICam(portName, maxMemory, priority, stackSize),
     cameraId_(cameraId),
     system_(VimbaSystem::GetInstance()), 
@@ -146,7 +165,9 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     epicsSnprintf(tempString, sizeof(tempString), "%d.%d.%d", 
                   version.major, version.minor, version.patch);
     setStringParam(ADSDKVersion,tempString);
- 
+    system_.RegisterCameraListObserver(ICameraListObserverPtr(new ADVimbaCameraListObserver(this)));
+
+    pasynManager->autoConnect(pasynUserSelf, 0);
     status = connectCamera();
     if (status) {
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
@@ -228,6 +249,10 @@ GenICamFeature *ADVimba::createFeature(GenICamFeatureSet *set,
     return new VimbaFeature(set, asynName, asynType, asynIndex, featureName, featureType, pCamera_);
 }
 
+CameraPtr ADVimba::getCamera() {
+    return pCamera_;
+}
+
 asynStatus ADVimba::connectCamera(void)
 {
     static const char *functionName = "connectCamera";
@@ -253,6 +278,25 @@ asynStatus ADVimba::connectCamera(void)
     return asynSuccess;
 }
 
+void ADVimba::connectionCallback(UpdateTriggerType reason)
+{
+    static const char *functionName = "connectionCallback";
+
+    switch (reason) {
+      case UpdateTriggerPluggedIn:
+        this->connect(pasynUserSelf);
+        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
+            "%s::%s calling connect()\n", driverName, functionName);
+        break;
+      case UpdateTriggerPluggedOut:
+        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
+            "%s::%s calling disconnect()\n", driverName, functionName);
+        this->disconnect(pasynUserSelf);
+        break;
+      case UpdateTriggerOpenStateChanged:
+        break;
+    }    
+}
 
 /** Task to grab images off the camera and send them up to areaDetector
  *
