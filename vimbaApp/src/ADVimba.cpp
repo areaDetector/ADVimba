@@ -87,7 +87,7 @@ public:
     ~ADVimbaCameraListObserver() {};
     void CameraListChanged(CameraPtr pCam, UpdateTriggerType reason) {
         // We got a callback for a camera connect or disconnect event.
-        // If it is for our camera then call the
+        // If it is for our camera then call ADVimba::connectionCallback()
         CameraPtr myCamera = pVimba_->getCamera();
         std::string serial, mySerial;
         myCamera->GetSerialNumber(mySerial);
