@@ -27,8 +27,8 @@ public:
             size_t maxMemory, int priority, int stackSize);
 
     // virtual methods to override from ADGenICam
-    //virtual asynStatus writeInt32( asynUser *pasynUser, epicsInt32 value);
-    //virtual asynStatus writeFloat64( asynUser *pasynUser, epicsFloat64 value);
+    virtual asynStatus connect(asynUser* pasynUser);
+    virtual asynStatus disconnect(asynUser* pasynUser);
     virtual asynStatus readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], 
                                 size_t nElements, size_t *nIn);
     void report(FILE *fp, int details);
@@ -55,7 +55,7 @@ private:
     asynStatus stopCapture();
     asynStatus connectCamera();
     asynStatus disconnectCamera();
-
+    asynStatus adjustPacketSize();
     const char *cameraId_;
     CameraPtr pCamera_;
     VimbaSystem & system_;
