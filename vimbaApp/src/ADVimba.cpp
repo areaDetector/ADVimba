@@ -145,7 +145,7 @@ static void imageGrabTaskC(void *drvPvt)
 ADVimba::ADVimba(const char *portName, const char *cameraId,
                  size_t maxMemory, int priority, int stackSize)
     : ADGenICam(portName, maxMemory, priority, stackSize),
-    cameraId_(cameraId),
+    cameraId_(epicsStrDup(cameraId)),
     system_(VimbaSystem::GetInstance()), 
     exiting_(false),
     acquiring_(false),
@@ -165,9 +165,9 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     epicsSnprintf(tempString, sizeof(tempString), "%d.%d.%d", 
                   version.major, version.minor, version.patch);
     setStringParam(ADSDKVersion,tempString);
-    system_.RegisterCameraListObserver(ICameraListObserverPtr(new ADVimbaCameraListObserver(this)));
 
     pasynManager->autoConnect(pasynUserSelf, 0);
+    pasynManager->exceptionDisconnect(pasynUserSelf);
     status = connectCamera();
     if (status) {
         asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
@@ -182,6 +182,8 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
         report(stdout, 1);
         return;
     }
+
+    system_.RegisterCameraListObserver(ICameraListObserverPtr(new ADVimbaCameraListObserver(this)));
 
     createParam("VMB_CONVERT_PIXEL_FORMAT",     asynParamInt32,   &VMBConvertPixelFormat);
     createParam("VMB_TIME_STAMP_MODE",          asynParamInt32,   &VMBTimeStampMode);
@@ -231,6 +233,18 @@ inline asynStatus ADVimba::checkError(VmbErrorType error, const char *functionNa
     return asynSuccess;
 }
 
+/* From asynPortDriver: Request to connect driver to devices; */
+asynStatus ADVimba::connect(asynUser* pasynUser) {
+
+    return connectCamera();
+}
+
+
+/* From asynPortDriver: Request to disconnect driver from device; */
+asynStatus ADVimba::disconnect(asynUser* pasynUser) {
+
+    return disconnectCamera();
+}
 
 void ADVimba::shutdown(void)
 {
@@ -238,7 +252,7 @@ void ADVimba::shutdown(void)
     
     lock();
     exiting_ = true;
-    pCamera_->Close();
+    disconnectCamera();
     system_.Shutdown();
     unlock();
 }
@@ -256,13 +270,36 @@ CameraPtr ADVimba::getCamera() {
 asynStatus ADVimba::connectCamera(void)
 {
     static const char *functionName = "connectCamera";
+    int isConnected;
 
-    if (checkError(system_.OpenCameraByID(cameraId_, VmbAccessModeFull, pCamera_), functionName, 
-                   "VimbaSystem::OpenCameraByID")) {
-        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
-            "%s::%s error opening camera %s\n", driverName, functionName, cameraId_);
+    pasynManager->isConnected(pasynUserSelf, &isConnected);
+    if (isConnected) return asynSuccess;
+    if (checkError(system_.OpenCameraByID(cameraId_, VmbAccessModeFull, pCamera_), functionName, "VimbaSystem::OpenCameraByID")) {
        return asynError;
     }
+    pasynManager->exceptionConnect(pasynUserSelf);
+    asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s OpenCameraByID succeeded\n", driverName, functionName);
+    return this->adjustPacketSize();
+}
+
+asynStatus ADVimba::disconnectCamera(void)
+{
+    static const char *functionName = "disconnectCamera";
+    int isConnected;
+
+    pasynManager->isConnected(pasynUserSelf, &isConnected);
+    if (!isConnected) return asynSuccess;
+    if (checkError(pCamera_->Close(), functionName, "pCamera->Close()")) {
+        return asynError;
+    }
+    pasynManager->exceptionDisconnect(pasynUserSelf);
+    asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s pCamera_->Close succeeded\n", driverName, functionName);
+    return asynSuccess;
+}
+    
+    
+asynStatus ADVimba::adjustPacketSize()
+{
     // Set the GeV packet size to the highest value that works
     FeaturePtr pFeature;
     bool done;
@@ -282,20 +319,20 @@ void ADVimba::connectionCallback(UpdateTriggerType reason)
 {
     static const char *functionName = "connectionCallback";
 
+    asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
+        "%s::%s reason=%d\n", driverName, functionName, reason);
+    lock();
     switch (reason) {
       case UpdateTriggerPluggedIn:
-        this->connect(pasynUserSelf);
-        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
-            "%s::%s calling connect()\n", driverName, functionName);
+        connectCamera();
         break;
       case UpdateTriggerPluggedOut:
-        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, 
-            "%s::%s calling disconnect()\n", driverName, functionName);
-        this->disconnect(pasynUserSelf);
+        disconnectCamera();
         break;
       case UpdateTriggerOpenStateChanged:
         break;
-    }    
+    }
+    unlock();
 }
 
 /** Task to grab images off the camera and send them up to areaDetector
