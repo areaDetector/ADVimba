@@ -15,7 +15,7 @@ epicsEnvSet("NELEMENTS", "15197952")
 #  Camera IP address
 #  The camera ID, which is the last part of the string reported by arv-tool
 # Camera IP address
-epicsEnvSet("CAMERA_ID", "164.54.160.58")
+epicsEnvSet("CAMERA_ID", "164.54.160.57")
 # CameraID, last part of camera name
 #epicsEnvSet("CAMERA_ID", "02-2142A-06178")
 epicsEnvSet("GENICAM_DB_FILE", "$(ADGENICAM)/db/AVT_GC1380H.template")
