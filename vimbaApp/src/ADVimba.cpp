@@ -180,7 +180,7 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
         setStringParam(ADStatusMessage, "Camera disconnected");
         // Call report() to get a list of available cameras
         report(stdout, 1);
-        return;
+        goto fail;
     }
 
     system_.RegisterCameraListObserver(ICameraListObserverPtr(new ADVimbaCameraListObserver(this)));
@@ -219,6 +219,7 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     // shutdown on exit
     epicsAtExit(c_shutdown, this);
 
+fail:
     return;
 }
 
@@ -275,7 +276,8 @@ asynStatus ADVimba::connectCamera(void)
     pasynManager->isConnected(pasynUserSelf, &isConnected);
     if (isConnected) return asynSuccess;
     if (checkError(system_.OpenCameraByID(cameraId_, VmbAccessModeFull, pCamera_), functionName, "VimbaSystem::OpenCameraByID")) {
-       return asynError;
+        pasynManager->exceptionDisconnect(pasynUserSelf);
+        return asynError;
     }
     pasynManager->exceptionConnect(pasynUserSelf);
     asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, "%s::%s OpenCameraByID succeeded\n", driverName, functionName);
