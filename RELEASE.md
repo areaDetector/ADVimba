@@ -15,7 +15,7 @@ files respectively, in the configure/ directory of the appropriate release of th
 
 Release Notes
 =============
-R1-5 (November XXX, 2024)
+R1-5 (December 1, 2024)
 ----
 * Added support for reconnecting the camera to the driver after network interruption 
   or power-cycling the camera.
