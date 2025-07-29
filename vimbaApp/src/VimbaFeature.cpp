@@ -21,7 +21,7 @@ VimbaFeature::VimbaFeature(GenICamFeatureSet *set,
 {
     static const char *functionName = "VimbaFeature";
     
-    if (VmbErrorSuccess == mCameraPtr->GetFeatureByName(featureName.c_str(), mFeaturePtr)) {
+    if (mCameraPtr && VmbErrorSuccess == mCameraPtr->GetFeatureByName(featureName.c_str(), mFeaturePtr)) {
         mIsImplemented = true;
         VmbFeatureDataType dataType;
         checkError(mFeaturePtr->GetDataType(dataType), "VimbaFeature", "GetDataType");
@@ -68,15 +68,14 @@ VimbaFeature::VimbaFeature(GenICamFeatureSet *set,
     }
 }
 
-inline asynStatus VimbaFeature::checkError(VmbErrorType error, const char *functionName, const char *VMBFunction)
+inline VmbErrorType VimbaFeature::checkError(VmbErrorType error, const char *functionName, const char *VMBFunction)
 {
     if (VmbErrorSuccess != error) {
         asynPrint(mAsynUser, ASYN_TRACE_ERROR,
             "%s:%s: ERROR calling %s error=%d\n",
             driverName, functionName, VMBFunction, error);
-        return asynError;
     }
-    return asynSuccess;
+    return error;
 }
 
 bool VimbaFeature::isImplemented() { 
@@ -88,6 +87,12 @@ bool VimbaFeature::isAvailable() {
     bool readable;
     bool writable;
     if (!mIsImplemented) return false;
+    // Test to see if isReadable returns VmbErrorDeviceNotOpen. 
+    // If so then the camera has probably reconnected, and we need to get a new mFeaturePtr.
+    VmbErrorType error = mFeaturePtr->IsReadable(readable);
+    if (error == VmbErrorDeviceNotOpen) {
+        checkError(mCameraPtr->GetFeatureByName(mFeatureName.c_str(), mFeaturePtr), "isAvailable", "GetFeatureByName");
+    }
     checkError(mFeaturePtr->IsReadable(readable), "isAvailable", "IsReadable");
     checkError(mFeaturePtr->IsWritable(writable), "isAvailable", "IsWritable");
     return (readable || writable);

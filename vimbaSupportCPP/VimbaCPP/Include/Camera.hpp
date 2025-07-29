@@ -203,11 +203,11 @@ inline VmbErrorType Camera::GetInterfaceID( std::string &rStrInterfaceID ) const
     return res;
 }
 
-inline VmbErrorType Camera::AcquireMultipleImages( FramePtrVector &rFrames, VmbUint32_t nTimeout )
+inline VmbErrorType Camera::AcquireMultipleImages( FramePtrVector &rFrames, VmbUint32_t nTimeout, FrameAllocationMode allocationMode )
 {
     VmbErrorType res;
     VmbUint32_t i;
-    res = AcquireMultipleImages( rFrames, nTimeout, i );
+    res = AcquireMultipleImages( rFrames, nTimeout, i, allocationMode );
     if ( rFrames.size() != i )
     {
         res = VmbErrorInternalFault;
@@ -215,14 +215,14 @@ inline VmbErrorType Camera::AcquireMultipleImages( FramePtrVector &rFrames, VmbU
     
     return res;
 }
-inline VmbErrorType Camera::AcquireMultipleImages( FramePtrVector &rFrames, VmbUint32_t nTimeout, VmbUint32_t &rNumFramesCompleted )
+inline VmbErrorType Camera::AcquireMultipleImages( FramePtrVector &rFrames, VmbUint32_t nTimeout, VmbUint32_t &rNumFramesCompleted, FrameAllocationMode allocationMode )
 {
     if ( true == rFrames.empty() )
     {
         return VmbErrorBadParameter;
     }
 
-    return AcquireMultipleImages( &rFrames[0], (VmbUint32_t)rFrames.size(), nTimeout, &rNumFramesCompleted );
+    return AcquireMultipleImages( &rFrames[0], (VmbUint32_t)rFrames.size(), nTimeout, &rNumFramesCompleted, allocationMode );
 }
 
 // HINT: Size of address determines how many registers to read. Size of data has to be large enough to hold the requested information

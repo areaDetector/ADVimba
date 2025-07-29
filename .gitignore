@@ -8,7 +8,8 @@ documentation.html
 envPaths*
 cdCommands
 dllPath.bat
-auto_settings.sav*
+/iocs/vimbaIOC/iocBoot/iocVimba/autosave/*.sav*
+/iocs/vimbaIOC/iocBoot/iocVimba/autosave/*.cfg*
 configure/*.local
 core.*
 O.*/

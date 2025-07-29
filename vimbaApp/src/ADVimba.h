@@ -17,15 +17,6 @@ using namespace std;
 #define VMBTimeStampModeString       "VMB_TIME_STAMP_MODE"        // asynParamInt32, R/O
 #define VMBUniqueIdModeString        "VMB_UNIQUE_ID_MODE"         // asynParamInt32, R/O
 
-class ADVimbaFrameObserver : virtual public IFrameObserver {
-public:
-    ADVimbaFrameObserver(CameraPtr pCamera, class ADVimba *pVimba);
-    ~ADVimbaFrameObserver();
-    virtual void FrameReceived(const FramePtr pFrame);
-    CameraPtr pCamera_;
-    class ADVimba *pVimba_;  
-};
-
 /** Main driver class inherited from areaDetectors ADGenICam class.
  * One instance of this class will control one camera.
  */
@@ -36,8 +27,8 @@ public:
             size_t maxMemory, int priority, int stackSize);
 
     // virtual methods to override from ADGenICam
-    //virtual asynStatus writeInt32( asynUser *pasynUser, epicsInt32 value);
-    //virtual asynStatus writeFloat64( asynUser *pasynUser, epicsFloat64 value);
+    virtual asynStatus connect(asynUser* pasynUser);
+    virtual asynStatus disconnect(asynUser* pasynUser);
     virtual asynStatus readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], 
                                 size_t nElements, size_t *nIn);
     void report(FILE *fp, int details);
@@ -49,6 +40,7 @@ public:
     void imageGrabTask();
     void shutdown();
     CameraPtr getCamera();
+    void connectionCallback(UpdateTriggerType reason);
     asynStatus processFrame(FramePtr pFrame);
 
 private:
@@ -63,7 +55,7 @@ private:
     asynStatus stopCapture();
     asynStatus connectCamera();
     asynStatus disconnectCamera();
-
+    asynStatus adjustPacketSize();
     const char *cameraId_;
     CameraPtr pCamera_;
     VimbaSystem & system_;

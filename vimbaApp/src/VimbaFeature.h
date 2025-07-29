@@ -41,7 +41,7 @@ public:
     virtual void writeCommand(void);
 
 private:
-    inline asynStatus checkError(VmbErrorType error, const char *functionName, const char *message);
+    inline VmbErrorType checkError(VmbErrorType error, const char *functionName, const char *message);
     CameraPtr mCameraPtr;
     asynUser *mAsynUser;
     FeaturePtr mFeaturePtr;

@@ -15,6 +15,30 @@ files respectively, in the configure/ directory of the appropriate release of th
 
 Release Notes
 =============
+R1-5 (December 1, 2024)
+----
+* Added support for reconnecting the camera to the driver after network interruption 
+  or power-cycling the camera.
+  - Added code to receive callbacks when Vimba SDK detects connects or disconnects.
+  - Added code to process manual connect and disconnect events, for example using asynRecord.
+  - Call pasynManager->exceptionConnect or exceptionDisconnect when the camera connection state changes.
+    This causes the current connection state to be displayed in OPI screens and prevents device
+    support calls to the driver when the camera is disconnected.
+  - Changed VimbaFeature::isAvailble to reconnect to the feature after camera power cycle.
+  - Added disconnectCamera() method.
+* Fix so the ADCore preAllocateBuffers method works.
+* Added exampleSrc directory for test programs.
+  - testOpenClose.cpp tests connection management.
+* Fixed missing ADGenICamSupport.dbd in IOC Makefile.
+
+R1-4 (July 20, 2023)
+----
+* Updated the version of the Vimba SDK being used to 6.0.
+  Windows users will need to install Vimba 6.0 to get the correct drivers and DLLs.
+  Linux users do not need to do anything because the 6.0 files are all included in ADVimba.
+* Removed support for 32-bit Linux and Windows.
+* Added protection against crash if a camera is disconnected.  Thanks to Xiaoqiang Wang for this.
+
 R1-3 (October 2, 2020)
 ----
 * Updated the version of the Vimba SDK being used to 4.0 (Windows) and 4.1 (Linux).
