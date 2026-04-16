@@ -3,7 +3,7 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 
-PROD_IOC += testOpenClose
+PROD_IOC_Linux += testOpenClose
 testOpenClose_SRCS += testOpenClose.cpp
 PROD_LIBS += VimbaCPP
 PROD_SYS_LIBS += VimbaC
