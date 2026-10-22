@@ -15,3 +15,6 @@ core.*
 O.*/
 *~
 *.swp
+*.local
+.iocsh_history
+

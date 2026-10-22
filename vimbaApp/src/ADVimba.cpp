@@ -149,6 +149,7 @@ ADVimba::ADVimba(const char *portName, const char *cameraId,
     system_(VimbaSystem::GetInstance()), 
     exiting_(false),
     acquiring_(false),
+    stopping_(false),
     uniqueId_(0)
 {
     static const char *functionName = "ADVimba";
@@ -344,9 +345,6 @@ void ADVimba::connectionCallback(UpdateTriggerType reason)
 void ADVimba::imageGrabTask()
 {
     int acquire;
-    int numImages;
-    int numImagesCounter;
-    int imageMode;
     static const char *functionName = "imageGrabTask";
 
     lock();
@@ -354,8 +352,17 @@ void ADVimba::imageGrabTask()
     while (1) {
         // Is acquisition active? 
         getIntegerParam(ADAcquire, &acquire);
-        // If we are not acquiring then wait for a semaphore that is given when acquisition is started 
         if (!acquire) {
+            // Acquisition finished (processFrame) or was stopped by the user; stop the camera stream
+            if (acquiring_ && !stopping_) {
+                stopCapture();
+                continue;
+            }
+        } else if (!acquiring_ && !stopping_) {
+            // A start request arrived while stopCapture() was running; start the stream now that the stop is done
+            startCapture();
+        }
+        if (!acquire && !acquiring_) {
             setIntegerParam(ADStatus, ADStatusIdle);
             callParamCallbacks();
 
@@ -371,30 +378,18 @@ void ADVimba::imageGrabTask()
             asynPrint(pasynUserSelf, ASYN_TRACE_FLOW,
                 "%s::%s started!\n", 
                 driverName, functionName);
-            setIntegerParam(ADNumImagesCounter, 0);
-            setIntegerParam(ADAcquire, 1);
+            continue;
         }
 
-        // We are now waiting for an image
-        setIntegerParam(ADStatus, ADStatusWaiting);
+        // We are now waiting for an image, or for another thread to finish stopping the stream
+        if (acquire) setIntegerParam(ADStatus, ADStatusWaiting);
         // Call the callbacks to update any changes
         callParamCallbacks();
 
         // Wait for event saying image has been collected
         unlock();
-        epicsEventWaitStatus waitStatus = epicsEventWaitWithTimeout(newFrameEventId_, 0.1);
+        epicsEventWaitWithTimeout(newFrameEventId_, 0.1);
         lock();
-        if (waitStatus == epicsEventWaitOK) {
-            getIntegerParam(ADNumImages, &numImages);
-            getIntegerParam(ADNumImagesCounter, &numImagesCounter);
-            getIntegerParam(ADImageMode, &imageMode);
-            // See if acquisition is done if we are in single or multiple mode
-            if ((imageMode == ADImageSingle) || ((imageMode == ADImageMultiple) && (numImagesCounter >= numImages))) {
-                setIntegerParam(ADStatus, ADStatusIdle);
-                stopCapture();
-            }
-        }
-        callParamCallbacks();
     }
 }
 
@@ -418,11 +413,21 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     VmbUchar_t *pData = NULL;
     int imageCounter;
     int numImagesCounter;
+    int numImages;
+    int imageMode;
+    int acquire;
     int arrayCallbacks;
     NDArray *pRaw = NULL;
     static const char *functionName = "processFrame";
 
     lock();
+    // Ignore frames seen after acquisition was stopped.
+    getIntegerParam(ADAcquire, &acquire);
+    if (!acquire || stopping_) {
+        pCamera_->QueueFrame(pFrame);
+        unlock();
+        return asynSuccess;
+    }
     VmbFrameStatusType frameStatus = VmbFrameStatusIncomplete;
     vmbStatus = pFrame->GetReceiveStatus(frameStatus);
     if (VmbErrorSuccess != vmbStatus || VmbFrameStatusComplete != frameStatus) {
@@ -625,6 +630,12 @@ asynStatus ADVimba::processFrame(FramePtr pFrame)
     numImagesCounter++;
     setIntegerParam(NDArrayCounter, imageCounter);
     setIntegerParam(ADNumImagesCounter, numImagesCounter);
+    getIntegerParam(ADNumImages, &numImages);
+    getIntegerParam(ADImageMode, &imageMode);
+    if ((imageMode == ADImageSingle) || ((imageMode == ADImageMultiple) && (numImagesCounter >= numImages))) {
+        setIntegerParam(ADAcquire, 0);
+        setIntegerParam(ADStatus, ADStatusIdle);
+    }
     getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
     if (arrayCallbacks) {
         // Call the NDArray callback
@@ -670,15 +681,19 @@ asynStatus ADVimba::readEnum(asynUser *pasynUser, char *strings[], int values[],
 
 asynStatus ADVimba::startCapture()
 {
-    //static const char *functionName = "startCapture";
+    static const char *functionName = "startCapture";
 
-    // If we are already acquiring return immediately
-    if (acquiring_) return asynSuccess;
+    setIntegerParam(ADNumImagesCounter, 0);
+    // A stop is running on another thread; the grab task starts the stream once it finishes
+    if (stopping_) return asynSuccess;
+    // Previous acquisition finished but its stream is still open, and the camera stopped
+    // itself after NumImages frames, so restart the stream to send a new AcquisitionStart
+    if (acquiring_) stopCapture();
 
     // Start the camera transmission...
-    setIntegerParam(ADNumImagesCounter, 0);
     setShutter(1);
-    pCamera_->StartContinuousImageAcquisition(NUM_VIMBA_BUFFERS, IFrameObserverPtr(new ADVimbaFrameObserver(pCamera_, this)));
+    checkError(pCamera_->StartContinuousImageAcquisition(NUM_VIMBA_BUFFERS, IFrameObserverPtr(new ADVimbaFrameObserver(pCamera_, this))),
+               functionName, "StartContinuousImageAcquisition");
     acquiring_ = true;
     epicsEventSignal(startEventId_);
     return asynSuccess;
@@ -687,26 +702,20 @@ asynStatus ADVimba::startCapture()
 
 asynStatus ADVimba::stopCapture()
 {
-    int status;
-    //static const char *functionName = "stopCapture";
+    static const char *functionName = "stopCapture";
 
-    setIntegerParam(ADAcquire, 0);
+    if (!acquiring_ || stopping_) return asynSuccess;
+    stopping_ = true;
     setShutter(0);
-    // Need to wait for the task to set the status to idle
-    while (1) {
-        getIntegerParam(ADStatus, &status);
-        if (status == ADStatusIdle) break;
-        unlock();
-        epicsThreadSleep(.1);
-        lock();
-    }
     // There seems to be a deadlock with a mutex in the Vimba library if StopContinuousImageAcquisition is
     // called when the FrameObserver callback is running, because it takes the locks in the opposite order.
     // Release the driver lock here.
     unlock(); 
-    pCamera_->StopContinuousImageAcquisition();
+    VmbErrorType status = pCamera_->StopContinuousImageAcquisition();
     lock();
+    checkError(status, functionName, "StopContinuousImageAcquisition");
     acquiring_ = false;
+    stopping_ = false;
     return asynSuccess;
 }
 

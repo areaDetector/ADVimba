@@ -62,6 +62,7 @@ private:
 
     bool exiting_;
     bool acquiring_;
+    bool stopping_;
     epicsEventId startEventId_;
     epicsEventId newFrameEventId_;
     int uniqueId_;
